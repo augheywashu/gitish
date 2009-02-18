@@ -1,4 +1,5 @@
-require 'rubygems'
+require 'digest/sha1'
+require 'zlib'
 require 'gdbm'
 require 'yaml'
 
@@ -15,41 +16,38 @@ class BackupManager
       @path = path
       @store = store
 
-      @key = read('key',nil)
+      @key,@filestats,@filekeys,@dirs = read(path)
 
-      @dirs = read('dirs',{ })
-      @files = read('files',{ })
-
+      @newfilestats = { }
+      @newfilekeys = { }
       @newdirs = { }
-      @newfiles = { }
     end
 
     def save!
       # Remove all old files from the cache
-      for removeddir in @dirs.keys - @newdirs.keys
+      for removedir in @dirs.keys - @newdirs.keys
         recurse_remove(File.join(@path,removedir))
       end
 
       # Save our data into the cache
-      @store['dirs' + @path] = @newdirs.to_yaml
-      @store['files' + @path] = @newdirs.to_yaml
-      @store['key' + @path] = self.key
+      write([key,@newfilestats,@newfilekeys,@newdirs])
     end
 
     def remember_dir(dir,key,stat)
-      @newdirs[dir] = [key,stat]
+      @newdirs[dir] = key
     end
 
     def remember_file(file,key,stat)
-      @newfiles[file] = [key,stat]
+      @newfilestats[file] = stat.mtime
+      @newfilekeys[file] = key
     end
 
     def key_for(file,stat)
-      values = @files[file]
-      return nil if values.nil?
+      storedstat = @filestats[file]
+      return nil if storedstat.nil?
 
-      if values[1] == stat
-        return values[0]
+      if storedstat == stat.mtime
+        return @filekeys[file]
       else
         return nil
       end
@@ -61,7 +59,12 @@ class BackupManager
         return true
       end
 
-      if @newdirs != @dirs or @newfiles != @files
+      if @newdirs != @dirs 
+        puts "directory #{@path} changed because a directory changed"
+        return true
+      end
+      if @newfilekeys != @filekeys
+        puts "directory #{@path} changed because a file changed"
         return true
       end
 
@@ -72,21 +75,23 @@ class BackupManager
 
     def recurse_remove(path)
       puts "Recurse removing #{path}"
-      dirs = read('dirs',{ },path)
+      key,filestats,filekeys,dirs = read(path)
       for dir in dirs.keys
         recurse_remove(File.join(path,dir))
       end
-      @store.delete('dirs' + path)
-      @store.delete('files' + path)
-      @store.delete('key' + path)
+      @store.delete(path)
     end
 
-    def read(kind,default,path = @path)
-      fullpath = kind + path
-      if @store.has_key?(fullpath)
-        return YAML.load(fullpath)
+    def write(data)
+      @store[@path] = data.to_yaml
+    end
+
+    def read(path)
+      if @store.has_key?(path)
+        data = YAML.load(@store[path])
+        return data[0],data[1],data[2],data[3]
       else
-        return default
+        return nil,{ },{ },{ }
       end
     end
 
@@ -110,6 +115,7 @@ class BackupManager
 
     cache = cache_for(path)
 
+    begin
     for e in Dir.entries(path)
       next if e == '.' or e == '..'
 
@@ -120,7 +126,6 @@ class BackupManager
       if File.directory?(fullpath)
         key = archive_directory(fullpath,archive)
         dirs << [e,key]
-
         cache.remember_dir(e,key,stat)
       else
         key = cache.key_for(e,stat)
@@ -132,7 +137,10 @@ class BackupManager
 
         cache.remember_file(e,key,stat)
       end
-
+    end
+    rescue Exception => e
+      puts "Caught an exception #{e} while archiving #{path}"
+      raise
     end
 
     if cache.changed?
@@ -142,7 +150,7 @@ class BackupManager
 
     cache.save!
 
-    key
+    cache.key
   end
 
 
@@ -165,9 +173,58 @@ class BackupManager
 
 end
 
+class BlobStore
+  def initialize(store)
+    @store = store
+    @blobs = GDBM.new("blobs.db")
+  end
+
+  def close
+    @blobs.close
+    @store.close
+  end
+
+  def has_sha?(sha)
+    @blobs.has_key?(sha)
+  end
+
+  def write(data,sha = nil)
+    sha = Digest::SHA1.hexdigest(data) unless sha
+    unless @blobs.has_key?(sha)
+      storekey = @store.write(data)
+      @blobs[sha] = storekey.to_s
+    end
+    sha
+  end
+end
+
+class DataStore
+  def initialize(file)
+    @file = File.open(file,"ab+")
+    @file.seek(0,IO::SEEK_END)
+  end
+
+  def close
+    @file.close
+  end
+
+  def size
+    @file.tell
+  end
+
+  def write(data)
+    @file.seek(0,IO::SEEK_END)
+    out = Zlib::Deflate.deflate(data)
+    offset = @file.tell
+    @file.write out
+    @file.fsync
+    offset
+  end
+end
+
 class Archive
   def initialize
-    @store = GDBM.new('archive.db')
+    @store = BlobStore.new(DataStore.new("rawdata"))
   end
 
   def close
@@ -176,13 +233,26 @@ class Archive
 
   def write_file(path)
     puts "Writing file #{path}"
-    path
+
+    shas = []
+    File.open(path,'r') do |f|
+      until f.eof?
+        data = f.read(1048576)
+        sha = Digest::SHA1.hexdigest(data)
+        @store.write(data,sha) unless @store.has_sha?(sha)
+        shas << sha
+      end
+    end
+    shas.join(',')
   end
+
   def write_directory(path,dirs,files)
     puts "Writing directory #{path}"
-    path
+    @store.write([dirs,files].to_yaml)
   end
+
   def write_commit(dir)
+    puts "(not) Writing commit #{dir}"
   end
 end
 
@@ -190,7 +260,8 @@ bm = BackupManager.new
 archive = Archive.new
 
 begin
-  changed,key = bm.archive_directory(ARGV[0],archive)
+  key = bm.archive_directory(ARGV[0],archive)
+  archive.write_commit(key)
 ensure
   bm.close
   archive.close
