@@ -2,9 +2,11 @@ require 'backupmanager'
 require 'archive'
 require 'blobstore'
 require 'datastore'
+require 'blobstorelocal'
 
 bm = BackupManager.new
-archive = Archive.new(BlobStore.new(DataStore.new("rawdata")))
+#archive = Archive.new(BlobStore.new(DataStore.new("rawdata")))
+archive = Archive.new(BlobStoreLocal.new("ruby blobstoreremote.rb"))
 
 begin
   for path in ARGV

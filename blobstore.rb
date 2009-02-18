@@ -17,19 +17,10 @@ class BlobStore
     @blobs.has_key?(sha)
   end
 
-  def verify_sha!(sha)
-    raise "Could not find #{sha} in blobstore" unless self.has_sha?(sha)
-  end
-
-  def verify_shas!(shas)
-    for sha in shas
-      verify_sha!(sha)
-    end
-  end
-
   def write_directory(dirs,files)
     for info in dirs + files
       name,shas = info
+      shas = "" unless shas
       verify_shas!(shas.split(','))
     end
     self.write([dirs,files].to_yaml)
@@ -60,5 +51,18 @@ class BlobStore
     end
     sha
   end
+
+  protected
+
+  def verify_sha!(sha)
+    raise "Could not find #{sha} in blobstore" unless self.has_sha?(sha)
+  end
+
+  def verify_shas!(shas)
+    for sha in shas
+      verify_sha!(sha)
+    end
+  end
+
 end
 

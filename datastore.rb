@@ -1,9 +1,12 @@
 require 'zlib'
 
 class DataStore
+  attr_reader :compress
+
   def initialize(file)
     @file = File.open(file,"ab+")
     @file.seek(0,IO::SEEK_END)
+    @compress = true
   end
 
   def close
@@ -20,17 +23,21 @@ class DataStore
     size = size.to_i
     @file.seek(offset)
     data = @file.read(size)
-    Zlib::Inflate.inflate(data)
+    if compress
+      Zlib::Inflate.inflate(data)
+    else
+      data
+    end
   end
 
   def write(data)
     return "0,0" if data.size == 0
     @file.seek(0,IO::SEEK_END)
-    out = Zlib::Deflate.deflate(data)
+    data = Zlib::Deflate.deflate(data) if compress
     offset = @file.tell
-    @file.write out
+    @file.write data
     @file.fsync
-    "#{offset},#{out.size}"
+    "#{offset},#{data.size}"
   end
 end
 

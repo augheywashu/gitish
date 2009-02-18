@@ -15,6 +15,7 @@ def restore_dir(sha,archive,path)
   for filename,shas in files
     fullpath = File.join(path,filename)
     puts "Restoring file #{fullpath}"
+    shas = "" unless shas
     File.open(fullpath,"w") do |f|
       for sha in shas.split(',')
         f.write(archive.read_sha(sha))
