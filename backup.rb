@@ -188,6 +188,18 @@ class BlobStore
     @blobs.has_key?(sha)
   end
 
+  def write_directory(dirs,files)
+    for info in dirs + files
+      p info
+      name,shas = info
+      for sha in shas.split(',')
+        puts "#{name} #{sha}"
+        raise "Could not find #{sha} to write directory for name #{name}" unless self.has_sha?(sha)
+      end
+    end
+    self.write([dirs,files].to_yaml)
+  end
+
   def write(data,sha = nil)
     sha = Digest::SHA1.hexdigest(data) unless sha
     unless @blobs.has_key?(sha)
@@ -213,12 +225,13 @@ class DataStore
   end
 
   def write(data)
+    return "0,0" if data.size == 0
     @file.seek(0,IO::SEEK_END)
     out = Zlib::Deflate.deflate(data)
     offset = @file.tell
     @file.write out
     @file.fsync
-    offset
+    "#{offset},#{out.size}"
   end
 end
 
@@ -248,7 +261,7 @@ class Archive
 
   def write_directory(path,dirs,files)
     puts "Writing directory #{path}"
-    @store.write([dirs,files].to_yaml)
+    @store.write_directory(dirs,files)
   end
 
   def write_commit(dir)
