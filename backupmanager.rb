@@ -107,29 +107,39 @@ class BackupManager
 
     cache = cache_for(path)
 
+    ignorefiles = ['.','..','.git','.svn','a.out']
+    ignorepatterns = [/\.o$/,/\.so$/,/\.a$/]
     begin
-    for e in Dir.entries(path)
-      next if e == '.' or e == '..'
-
-      fullpath = File.join(path,e)
-
-      stat = File.stat(fullpath)
-
-      if File.directory?(fullpath)
-        key = archive_directory(fullpath,archive)
-        dirs << [e,key]
-        cache.remember_dir(e,key,stat)
-      else
-        key = cache.key_for(e,stat)
-        if key.nil?
-          key = archive.write_file(fullpath)
+      for e in Dir.entries(path)
+        next if ignorefiles.include?(e)
+        skip = false
+        for p in ignorepatterns
+          if p.match(e)
+            skip = true
+            break
+          end
         end
+        next if skip
 
-        files << [e,key]
+        fullpath = File.join(path,e)
 
-        cache.remember_file(e,key,stat)
+        stat = File.stat(fullpath)
+
+        if File.directory?(fullpath)
+          key = archive_directory(fullpath,archive)
+          dirs << [e,key]
+          cache.remember_dir(e,key,stat)
+        else
+          key = cache.key_for(e,stat)
+          if key.nil?
+            key = archive.write_file(fullpath)
+          end
+
+          files << [e,key]
+
+          cache.remember_file(e,key,stat)
+        end
       end
-    end
     rescue Exception => e
       puts "Caught an exception #{e} while archiving #{path}"
       raise
