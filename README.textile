@@ -52,5 +52,8 @@ a ssh connection or similar communication mechanism (http in work).
 * blobstoreremote.rb
 ** This file is executable and does the remote side of the local-remote communication channel.
 
-* remotecommon.rb
-** There are several methods shared between the local and remote methods that are captured here to DRY up the code.
+h1. Write Chain
+
+Here is the chain I expect to build.
+
+Archive -> Compress -> Encrypt -> Keyify -> WriteCheck -> STORAGESYSTEM

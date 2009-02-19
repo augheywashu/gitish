@@ -1,19 +1,17 @@
 require 'openssl'
 require 'digest/sha1'
+require 'writechain'
 
-class BlobCrypt
-  def initialize(store)
-    raise "You must set the ENV variable CRYPT_KEY" unless ENV['CRYPT_KEY']
-    @key = Digest::SHA1.hexdigest(ENV['CRYPT_KEY'])
-    @store = store
-  end
+class BlobCrypt < WriteChain
+  def initialize(child, options)
+    super
 
-  def method_missing(method, *args)
-    @store.send(method,*args)
+    raise "You must set the :crypt_key option" unless options.has_key?(:crypt_key)
+    @key = Digest::SHA1.hexdigest(options[:crypt_key])
   end
 
   def read_sha(sha)
-    data = @store.read_sha(sha)
+    data = super
     c = OpenSSL::Cipher::Cipher.new("aes-256-cbc")
     c.decrypt
     c.key = @key
@@ -23,8 +21,7 @@ class BlobCrypt
     d
   end
 
-
-  def write(data,sha = nil)
+  def write(data)
     c = OpenSSL::Cipher::Cipher.new("aes-256-cbc")
     c.encrypt
     c.key = @key
@@ -32,6 +29,6 @@ class BlobCrypt
     e = c.update(data)
     e << c.final
 
-    @store.write(e,sha)
+    super(e)
   end
 end

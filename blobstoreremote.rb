@@ -1,7 +1,4 @@
-require 'segmented_datastore'
-require 'blobstore'
-require 'datastore'
-require 'remotecommon'
+require 'writechain'
 
 class NullIO
   def puts(*args)
@@ -17,9 +14,8 @@ else
 end
 
 begin
-  include RemoteCommon
 
-  store = BlobStore.create(:local)
+  store = WriteChain.create(:remote,{ })
 
   STDIN.sync = true
   STDOUT.sync = true
@@ -29,9 +25,8 @@ begin
   until STDIN.eof?
     command = STDIN.readline.chomp
     log.puts "got #{command}"
-    if command == 'sha?'
-      sha = STDIN.readline.chomp
-      if store.has_sha?(sha)
+    if command=~/sha\? (.*)/
+      if store.has_sha?($1)
         puts "1"
       else
         puts "0"
@@ -41,11 +36,11 @@ begin
       puts data.size
       STDOUT.write(data)
     elsif command=~/commit (\w+)(.*)/
-      store.write_commit($2,$1)
+      store.write_commit($1,$2)
       puts "done"
-    elsif command=~/data (\d+)/
-      data = STDIN.read($1.to_i)
-      puts store.write(data)
+    elsif command=~/write (\w+) (\d+)/
+      data = STDIN.read($2.to_i)
+      puts store.write(data,$1)
     else
       raise "unknown command received #{command}"
     end

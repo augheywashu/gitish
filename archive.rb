@@ -1,4 +1,5 @@
 require 'digest/sha1'
+require 'yaml'
 
 class Archive
   CHUNKSIZE=1048576.0
@@ -50,9 +51,9 @@ class Archive
     @blobstore.write([dirs,files].to_yaml)
   end
 
-  def write_commit(path,sha)
-    STDERR.puts "Writing commit #{sha} - #{path}"
-    @blobstore.write_commit(path,sha)
+  def write_commit(sha,message)
+    STDERR.puts "Writing commit #{sha} - #{message}"
+    @blobstore.write_commit(sha,message)
   end
 
   protected

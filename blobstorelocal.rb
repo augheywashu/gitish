@@ -1,10 +1,9 @@
-require 'remotecommon'
 require "open3"
 
 class BlobStoreLocal
-  include RemoteCommon
 
-  def initialize(command)
+  def initialize(options)
+    command = options[:remote_command] || raise("BlobStoreLocal: :remote_command not defined in options")
     @stdin,@stdout,@stderr = Open3.popen3(command)
 
     @stdin.sync = true
@@ -19,8 +18,7 @@ class BlobStoreLocal
   end
 
   def has_sha?(sha)
-    @stdin.puts "sha?"
-    @stdin.puts sha
+    @stdin.puts "sha? #{sha}"
     res = @stdout.readline.chomp.to_i
     return res == 1
   end
@@ -31,13 +29,13 @@ class BlobStoreLocal
     @stdout.read(size)
   end
 
-  def write_commit(path,sha)
-    @stdin.puts "commit #{sha} #{path}"
+  def write_commit(sha,message)
+    @stdin.puts "commit #{sha} #{message}"
     @stdout.readline.chomp
   end
 
-  def write(data,sha = nil)
-    @stdin.puts "data #{data.size}"
+  def write(data,sha)
+    @stdin.puts "write #{sha} #{data.size}"
     @stdin.write(data)
     returnedsha = @stdout.readline.chomp
     if !sha.nil?

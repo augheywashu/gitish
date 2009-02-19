@@ -1,23 +1,8 @@
 require 'gdbm'
-require 'yaml'
 require 'digest/sha1'
 require 'blobcrypt'
 
 class BlobStore
-  # Basic factory method to build the store chain
-  def self.create(kind = :remote)
-    storedir = "store"
-    if kind == :local
-      require 'segmented_datastore'
-      BlobStore.new(storedir,SegmentedDataStore.new("#{storedir}/blobdata",DataStore))
-    else
-      require 'blobstorelocal'
-      remote = ENV['GITISH_REMOTE']
-      raise "Remote command environment variable not defined (GITISH_REMOTE)" unless remote
-      BlobCrypt.new(BlobStoreLocal.new(remote))
-    end
-  end
-
   def initialize(storedir,store)
     @storedir = storedir
     @store = store
@@ -33,10 +18,10 @@ class BlobStore
     @blobs.has_key?(sha)
   end
 
-  def write_commit(path,sha)
+  def write_commit(sha,message)
     verify_sha!(sha)
     File.open(File.join(@storedir,"commits"),'a+') do |f|
-      f.puts "#{sha} - #{path} - #{Time.now}"
+      f.puts "#{sha} - #{message}"
     end
   end
 
@@ -45,12 +30,10 @@ class BlobStore
     @store.read(@blobs[sha])
   end
 
-  def write(data,sha = nil)
-    sha = Digest::SHA1.hexdigest(data) unless sha
-    unless @blobs.has_key?(sha)
-      storekey = @store.write(data)
-      @blobs[sha] = storekey.to_s
-    end
+  def write(data,sha)
+    raise "BlobStore: write should not be asked to write data it already has." if @blobs.has_key?(sha)
+    storekey = @store.write(data)
+    @blobs[sha] = storekey.to_s
     sha
   end
 

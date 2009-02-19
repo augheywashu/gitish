@@ -1,11 +1,9 @@
 require 'fileutils'
 require 'archive'
-require 'blobstore'
-require 'datastore'
-
+require 'writechain'
 
 def restore_dir(sha,archive,path)
-  STDERR.puts "Restoring directory #{path}"
+  STDERR.puts "Restoring directory #{path} #{sha}"
   FileUtils.mkdir_p(path)
 
   dirs,files = archive.read_directory(sha)
@@ -24,7 +22,10 @@ def restore_dir(sha,archive,path)
   end
 end
 
-archive = Archive.new(BlobStore.create)
+archive = Archive.new(WriteChain.create(ARGV[0].to_sym,eval(ARGV[1])))
+
+ARGV.shift
+ARGV.shift
 
 begin
   restore_dir(ARGV[0],archive,"restore")
