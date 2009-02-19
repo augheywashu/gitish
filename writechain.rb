@@ -17,7 +17,6 @@ class WriteChain
   end
 
   def self.create(kind,options)
-    storedir = "store"
     if kind == :network
       require 'blobcrypt'
       require 'keyify'
@@ -30,7 +29,7 @@ class WriteChain
       require 'segmented_datastore'
       require 'blobstore'
       require 'datastore'
-      BlobStore.new(storedir,SegmentedDataStore.new("#{storedir}/blobdata",DataStore))
+      BlobStore.new(SegmentedDataStore.new(DataStore,options),options)
     elsif kind == :local
       require 'blobcrypt'
       require 'keyify'

@@ -15,7 +15,7 @@ end
 
 begin
 
-  store = WriteChain.create(:remote,{ })
+  store = WriteChain.create(:remote,{ :storedir => 'store' })
 
   STDIN.sync = true
   STDOUT.sync = true

@@ -4,11 +4,11 @@ require 'blobcrypt'
 require 'fileutils'
 
 class BlobStore
-  def initialize(storedir,store)
-    FileUtils::mkdir_p(storedir)
-    @storedir = storedir
+  def initialize(store,options)
+    @storedir = options[:storedir] || raise("BlobStore: :storedir option not defined")
+    FileUtils::mkdir_p(@storedir)
     @store = store
-    @blobs = GDBM.new(File.join(storedir,"blobs.db"))
+    @blobs = GDBM.new(File.join(@storedir,"blobs.db"))
     @flatdb = File.open(File.join(@storedir,"blobs.txt"),"a+")
     @datasize = 0
   end

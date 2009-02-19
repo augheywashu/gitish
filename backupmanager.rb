@@ -109,7 +109,7 @@ class BackupManager
 
     onlypatterns = []
     ignorefiles = ['.','..','.git','.svn','a.out','0LD COMPUTERS BACKED-UP FILES HERE!']
-    ignorepatterns = [/^~/,/^\./,/\.o$/,/\.so$/,/\.a$/]
+    ignorepatterns = [/^\~/,/^\./,/\.o$/,/\.so$/,/\.a$/]
     onlypatterns = [/\.doc/,/\.xls/]
     begin
       files_to_process = []
