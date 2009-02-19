@@ -25,4 +25,32 @@ need to be archived and keeping a cache of files that have been archived.  Backu
 interacts with an Archive object.
 
 * archive.rb
-** The archive...
+** The archive provides basic methods for reading and writing data.  write_file does
+most of the heavy work of taking a file and splitting it into 1MB chunks to be written
+to the next level store.
+
+* blobstore.rb
+** BlobStore maintains a mapping between shas and lower level storage keys.  It provides
+higher level methods such as write_directory that take a list of directories and files
+and writes it to the lower level store.  This is mostly a pass-through class, right now.
+
+* datastore.rb
+** DataStore is the lowest level storage system that simple takes chunks of data and writes
+them to persistant storage.  The write method returns a key that can be used to retrieve that
+bit of data.  A read method takes that same key and returns the data that was written.  
+
+* restore.rb
+** A simple restore program.
+
+h2. Other Files
+
+* blobstorelocal.rb
+** BlobStoreLocal mimicks a BlobStore class but communicates with a corresponding BlobStoreRemote
+object through standard stdin/stdout reads and writes.  This is intended to be piped through
+a ssh connection or similar communication mechanism (http in work).
+
+* blobstoreremote.rb
+** This file is executable and does the remote side of the local-remote communication channel.
+
+* remotecommon.rb
+** There are several methods shared between the local and remote methods that are captured here to DRY up the code.
