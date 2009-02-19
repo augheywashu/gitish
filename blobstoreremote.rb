@@ -1,16 +1,17 @@
+require 'segmented_datastore'
 require 'blobstore'
 require 'datastore'
-
-store = BlobStore.new(DataStore.new("rawdata"))
 
 log = File.open("log","w")
 $log = log
 
-STDIN.sync = true
-STDOUT.sync = true
-STDERR.sync = true
-
 begin
+  store = BlobStore.create
+
+  STDIN.sync = true
+  STDOUT.sync = true
+  STDERR.sync = true
+
   until STDIN.eof?
     command = STDIN.readline.chomp
     log.puts "got #{command}"
