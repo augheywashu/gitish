@@ -8,8 +8,8 @@ class BlobStore
     @storedir = options[:storedir] || raise("BlobStore: :storedir option not defined")
     FileUtils::mkdir_p(@storedir)
     @store = store
-    @blobs = GDBM.new(File.join(@storedir,"blobs.db"))
-    @flatdb = File.open(File.join(@storedir,"blobs.txt"),"a+")
+    @blobs = GDBM.new(File.join(@storedir,"blobs.db"),0666,options[:readonly] ? GDBM::READER : (GDBM::WRCREAT | GDBM::SYNC))
+    @flatdb = File.open(File.join(@storedir,"blobs.txt"),"a+") unless options[:readonly]
     @datasize = 0
   end
 
