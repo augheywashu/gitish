@@ -110,7 +110,7 @@ class BackupManager
     onlypatterns = []
     ignorefiles = ['.','..','.git','.svn','a.out','0LD COMPUTERS BACKED-UP FILES HERE!']
     ignorepatterns = [/^~/,/^\./,/\.o$/,/\.so$/,/\.a$/]
-  #  onlypatterns = [/\.doc/,/\.xls/]
+    onlypatterns = [/\.doc/,/\.xls/]
     begin
       for e in Dir.entries(path).sort
         next if ignorefiles.include?(e)

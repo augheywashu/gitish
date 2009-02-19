@@ -28,7 +28,9 @@ ARGV.shift
 ARGV.shift
 
 begin
-  restore_dir(ARGV[0],archive,"restore")
+  for sha in ARGV
+    restore_dir(sha,archive,"restore")
+  end
 ensure
   archive.close
 end

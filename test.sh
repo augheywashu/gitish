@@ -9,7 +9,8 @@ export CRYPT_KEY='jklfdsajlkfdsaijofdsaoi'
 rm -rf store/* *.db restore/*
 
 options="{:crypt_key => 'jfaiowjioewajg', :remote_command => 'ruby blobstoreremote.rb'}"
+method=network
 
-sha=`ruby backup.rb network "$options" ../augtion/test`
+sha=`ruby backup.rb $method "$options" ../augtion/test`
 
-ruby restore.rb network "$options" $sha
+ruby restore.rb $method "$options" $sha

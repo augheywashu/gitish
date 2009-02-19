@@ -37,6 +37,7 @@ class BlobStore
     @blobs[sha] = storekey.to_s
     @flatdb.flock File::LOCK_EX
     @flatdb.puts "#{sha} #{storekey.to_s}"
+    @flatdb.sync
     @flatdb.flock File::LOCK_UN
     sha
   end
