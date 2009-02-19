@@ -1,6 +1,19 @@
+module Comma
+  def commaize
+    self.to_s.gsub(/(\d)(?=\d{3}+(?:\.|$))(\d{3}\..*)?/,'\1,\2')
+  end
+end
+
+Bignum.send :include,Comma
+Fixnum.send :include,Comma
+
 class WriteChain
   def initialize(child, options={})
     @child = child
+  end
+
+  def stats
+    @child.stats
   end
 
   def self.create(kind,options)

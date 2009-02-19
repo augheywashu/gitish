@@ -6,6 +6,11 @@ class Archive
 
   def initialize(blobstore)
     @blobstore = blobstore
+    @datasize = 0
+  end
+
+  def stats
+    ["Archive: wrote #{@datasize.commaize} bytes of file data"] + @blobstore.stats
   end
 
   def close
@@ -24,6 +29,7 @@ class Archive
       until f.eof?
         data = f.read(CHUNKSIZE)
         STDERR.puts "Writing chunk #{chunk} of #{chunks}"
+        @datasize += data.size
         sha = @blobstore.write(data)
         shas << sha
         chunk += 1

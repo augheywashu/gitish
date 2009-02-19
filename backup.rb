@@ -17,4 +17,6 @@ begin
 ensure
   bm.close
   archive.close
+
+  STDERR.puts archive.stats.join("\n")
 end
