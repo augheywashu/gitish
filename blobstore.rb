@@ -7,6 +7,7 @@ class BlobStore
     @storedir = storedir
     @store = store
     @blobs = GDBM.new(File.join(storedir,"blobs.db"))
+    @flatdb = File.open(File.join(@storedir,"blobs.txt"),"a+")
   end
 
   def close
@@ -34,6 +35,9 @@ class BlobStore
     raise "BlobStore: write should not be asked to write data it already has." if @blobs.has_key?(sha)
     storekey = @store.write(data)
     @blobs[sha] = storekey.to_s
+    @flatdb.flock File::LOCK_EX
+    @flatdb.puts "#{sha} #{storekey.to_s}"
+    @flatdb.flock File::LOCK_UN
     sha
   end
 
