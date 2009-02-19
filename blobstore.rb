@@ -10,6 +10,11 @@ class BlobStore
     @store = store
     @blobs = GDBM.new(File.join(storedir,"blobs.db"))
     @flatdb = File.open(File.join(@storedir,"blobs.txt"),"a+")
+    @datasize = 0
+  end
+
+  def stats
+    ["BlobStore: write #{@datasize.commaize} bytes to the store"]
   end
 
   def close
@@ -35,6 +40,7 @@ class BlobStore
 
   def write(data,sha)
     raise "BlobStore: write should not be asked to write data it already has." if @blobs.has_key?(sha)
+    @datasize += data.size
     storekey = @store.write(data)
     @blobs[sha] = storekey.to_s
     @flatdb.flock File::LOCK_EX

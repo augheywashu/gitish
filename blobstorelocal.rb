@@ -8,10 +8,14 @@ class BlobStoreLocal
     @stdin.sync = true
     @stdout.sync = true
     @stderr.sync = true
+
+    @writesize = 0
+    @readsize = 0
   end
 
   def stats
-    []
+    ["BlobStoreLocal: wrote #{@writesize.commaize} bytes",
+      "BlobStoreLocal: read #{@readsize.commaize} bytes"]
   end
 
   def close
@@ -21,29 +25,54 @@ class BlobStoreLocal
   end
 
   def has_sha?(sha)
-    @stdin.puts "sha? #{sha}"
-    res = @stdout.readline.chomp.to_i
+    puts "sha? #{sha}"
+    res = readline.chomp.to_i
     return res == 1
   end
 
   def read_sha(sha)
-    @stdin.puts "readsha #{sha}"
-    size = @stdout.readline.chomp.to_i
-    @stdout.read(size)
+    puts "readsha #{sha}"
+    size = readline.chomp.to_i
+    read(size)
   end
 
   def write_commit(sha,message)
-    @stdin.puts "commit #{sha} #{message}"
-    @stdout.readline.chomp
+    puts "commit #{sha} #{message}"
+    readline.chomp
   end
 
   def write(data,sha)
-    @stdin.puts "write #{sha} #{data.size}"
-    @stdin.write(data)
-    returnedsha = @stdout.readline.chomp
+    puts "write #{sha} #{data.size}"
+    dowrite(data)
+    returnedsha = readline.chomp
     if !sha.nil?
       raise "Hmmmm, wrote data with sha #{sha} and server returned #{returnedsha}" if returnedsha != sha
     end
     returnedsha
   end
+
+  protected
+
+  def puts(data)
+    @writesize += data.size
+    @stdin.puts data
+  end
+
+  def dowrite(data)
+    @writesize += data.size
+    @stdin.write(data)
+  end
+
+  def read(size)
+    d = @stdout.read(size)
+    @readsize += d.size
+    d
+  end
+
+  def readline
+    d = @stdout.readline
+    @readsize += d.size
+    d
+  end
+
 end
