@@ -142,19 +142,19 @@ class BackupManager
                 break
               end
             end
-            next if skip
           end
+
+          next if skip
 
           # Keep a list of the files to do after directories.
           # We do the files afterwards to reduce re-writes on aborts
-          files_to_process << [e,stat]
+          files_to_process << [e,fullpath,stat]
         end
-
-      end
+      end # for all dir entries
 
       # Now do the files.
       for f in files_to_process
-        e,stat = f
+        e,fullpath,stat = f
         key = cache.key_for(e,stat)
         if key.nil?
           key = archive.write_file(fullpath)
