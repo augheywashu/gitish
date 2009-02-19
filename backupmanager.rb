@@ -112,6 +112,7 @@ class BackupManager
     ignorepatterns = [/^~/,/^\./,/\.o$/,/\.so$/,/\.a$/]
     onlypatterns = [/\.doc/,/\.xls/]
     begin
+      files_to_process = []
       for e in Dir.entries(path).sort
         next if ignorefiles.include?(e)
         fullpath = File.join(path,e)
@@ -144,6 +145,14 @@ class BackupManager
             next if skip
           end
 
+          # Keep a list of the files to do after directories.
+          # We do the files afterwards to reduce re-writes on aborts
+          files_to_process << [e,stat]
+        end
+
+        # Now do the files.
+        for f in files_to_process
+          e,stat = f
           key = cache.key_for(e,stat)
           if key.nil?
             key = archive.write_file(fullpath)
