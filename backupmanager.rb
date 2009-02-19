@@ -150,18 +150,19 @@ class BackupManager
           files_to_process << [e,stat]
         end
 
-        # Now do the files.
-        for f in files_to_process
-          e,stat = f
-          key = cache.key_for(e,stat)
-          if key.nil?
-            key = archive.write_file(fullpath)
-          end
+      end
 
-          files << [e,key]
-
-          cache.remember_file(e,key,stat)
+      # Now do the files.
+      for f in files_to_process
+        e,stat = f
+        key = cache.key_for(e,stat)
+        if key.nil?
+          key = archive.write_file(fullpath)
         end
+
+        files << [e,key]
+
+        cache.remember_file(e,key,stat)
       end
     rescue Exception => e
       puts "Caught an exception #{e} while archiving #{path}"
