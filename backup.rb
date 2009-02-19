@@ -2,16 +2,15 @@ require 'backupmanager'
 require 'archive'
 require 'blobstore'
 require 'datastore'
-require 'blobstorelocal'
 
 bm = BackupManager.new
-#archive = Archive.new(BlobStore.new(DataStore.new("rawdata")))
-archive = Archive.new(BlobStoreLocal.new("ruby blobstoreremote.rb"))
+archive = Archive.new(BlobStore.create)
 
 begin
   for path in ARGV
     sha = bm.archive_directory(path,archive)
     archive.write_commit(path,sha)
+    puts sha
   end
 ensure
   bm.close

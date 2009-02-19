@@ -5,7 +5,7 @@ require 'datastore'
 
 
 def restore_dir(sha,archive,path)
-  puts "Restoring directory #{path}"
+  STDERR.puts "Restoring directory #{path}"
   FileUtils.mkdir_p(path)
 
   dirs,files = archive.read_directory(sha)
@@ -14,7 +14,7 @@ def restore_dir(sha,archive,path)
   end
   for filename,shas in files
     fullpath = File.join(path,filename)
-    puts "Restoring file #{fullpath}"
+    STDERR.puts "Restoring file #{fullpath}"
     shas = "" unless shas
     File.open(fullpath,"w") do |f|
       for sha in shas.split(',')
@@ -24,7 +24,7 @@ def restore_dir(sha,archive,path)
   end
 end
 
-archive = Archive.new(BlobStore.new(DataStore.new("rawdata")))
+archive = Archive.new(BlobStore.create)
 
 begin
   restore_dir(ARGV[0],archive,"restore")

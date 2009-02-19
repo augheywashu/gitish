@@ -3,9 +3,22 @@ require 'yaml'
 require 'digest/sha1'
 
 class BlobStore
-  def initialize(store)
+  # Basic factory method to build the store chain
+  def self.create(kind = :remote)
+    storedir = "store"
+    if kind == :local
+      require 'segmented_datastore'
+      BlobStore.new(storedir,SegmentedDataStore.new("#{storedir}/blobdata",DataStore))
+    else
+      require 'blobstorelocal'
+      BlobStoreLocal.new("ruby blobstoreremote.rb")
+    end
+  end
+
+  def initialize(storedir,store)
+    @storedir = storedir
     @store = store
-    @blobs = GDBM.new("blobs.db")
+    @blobs = GDBM.new(File.join(storedir,"blobs.db"))
   end
 
   def close
@@ -38,7 +51,7 @@ class BlobStore
 
   def write_commit(path,sha)
     verify_sha!(sha)
-    File.open("commits",'a+') do |f|
+    File.open(File.join(@storedir,"commits"),'a+') do |f|
       f.puts "#{sha} - #{path} - #{Time.now}"
     end
   end

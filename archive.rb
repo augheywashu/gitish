@@ -10,7 +10,7 @@ class Archive
   end
 
   def write_file(path)
-    puts "Writing file #{path}"
+    STDERR.puts "Writing file #{path}"
 
     shas = []
     File.open(path,'r') do |f|
@@ -33,12 +33,12 @@ class Archive
   end
 
   def write_directory(path,dirs,files)
-    puts "Writing directory #{path}"
+    STDERR.puts "Writing directory #{path}"
     @blobstore.write_directory(dirs,files)
   end
 
   def write_commit(path,sha)
-    puts "Writing commit #{sha} - #{path}"
+    STDERR.puts "Writing commit #{sha} - #{path}"
     @blobstore.write_commit(path,sha)
   end
 end

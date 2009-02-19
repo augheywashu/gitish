@@ -1,12 +1,21 @@
+require 'remotecommon'
 require "open3"
 
 class BlobStoreLocal
+  include RemoteCommon
+
   def initialize(command)
     @stdin,@stdout,@stderr = Open3.popen3(command)
 
     @stdin.sync = true
     @stdout.sync = true
     @stderr.sync = true
+  end
+
+  def read_directory(sha)
+    @stdin.puts "readdir #{sha}"
+    dirs,files = read_dirs_files(@stdout)
+    return dirs,files
   end
 
   def close
@@ -22,15 +31,15 @@ class BlobStoreLocal
     return res == 1
   end
 
+  def read_sha(sha)
+    @stdin.puts "readsha #{sha}"
+    size = @stdout.readline.chomp.to_i
+    @stdout.read(size)
+  end
+
   def write_directory(dirs,files)
     @stdin.puts "dir"
-    for dir in dirs
-      @stdin.puts "d;" + dir.join(";")
-    end
-    for file in files
-      @stdin.puts "f;" + file.join(";")
-    end
-    @stdin.puts
+    write_dirs_files(@stdin,dirs,files)
     @stdout.readline.chomp
   end
 

@@ -32,11 +32,17 @@ class DataStore
 
   def write(data)
     return "0,0" if data.size == 0
-    @file.seek(0,IO::SEEK_END)
+
     data = Zlib::Deflate.deflate(data) if compress
-    offset = @file.tell
-    @file.write data
-    @file.fsync
+
+    @file.flock File::LOCK_EX
+
+      @file.seek(0,IO::SEEK_END)
+      offset = @file.tell
+      @file.write data
+      @file.fsync
+
+    @file.flock File::LOCK_UN
     "#{offset},#{data.size}"
   end
 end

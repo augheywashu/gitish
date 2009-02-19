@@ -1,2 +1,6 @@
 *.db
 *.swp
+restore
+store
+log
+commits

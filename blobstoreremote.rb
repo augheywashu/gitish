@@ -1,16 +1,30 @@
 require 'segmented_datastore'
 require 'blobstore'
 require 'datastore'
+require 'remotecommon'
 
-log = File.open("log","w")
-$log = log
+class NullIO
+  def puts(*args)
+  end
+  def sync=(val)
+  end
+end
+
+if ENV["LOG_IO"]
+  log = File.open("log","w")
+else
+  log = NullIO.new
+end
 
 begin
-  store = BlobStore.create
+  include RemoteCommon
+
+  store = BlobStore.create(:local)
 
   STDIN.sync = true
   STDOUT.sync = true
   STDERR.sync = true
+  log.sync = true
 
   until STDIN.eof?
     command = STDIN.readline.chomp
@@ -23,22 +37,17 @@ begin
         puts "0"
       end
     elsif command == 'dir'
-      dirs = []
-      files = []
-      until (line = STDIN.readline.chomp) == ""
-        log.puts "dir line #{line}"
-        action,name,shas = line.split(';')
-        if action == 'd'
-          dirs << [name,shas]
-        elsif action == 'f'
-          files << [name,shas]
-        else
-          raise "unknown action in dir line #{action}"
-        end
-      end
+      dirs,files = read_dirs_files(STDIN)
       log.puts dirs.inspect
       log.puts files.inspect
       puts store.write_directory(dirs,files)
+    elsif command=~/readsha (\w+)/
+      data = store.read_sha($1)
+      puts data.size
+      STDOUT.write(data)
+    elsif command=~/readdir (\w+)/
+      dirs,files = store.read_directory($1)
+      write_dirs_files(STDOUT,dirs,files)
     elsif command=~/commit (\w+)(.*)/
       store.write_commit($2,$1)
       puts "done"
