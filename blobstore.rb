@@ -11,7 +11,9 @@ class BlobStore
       BlobStore.new(storedir,SegmentedDataStore.new("#{storedir}/blobdata",DataStore))
     else
       require 'blobstorelocal'
-      BlobStoreLocal.new("ruby blobstoreremote.rb")
+      remote = ENV['GITISH_REMOTE']
+      raise "Remote command environment variable not defined (GITISH_REMOTE)" unless remote
+      BlobStoreLocal.new(remote)
     end
   end
 

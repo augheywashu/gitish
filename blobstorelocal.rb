@@ -27,7 +27,7 @@ class BlobStoreLocal
   def has_sha?(sha)
     @stdin.puts "sha?"
     @stdin.puts sha
-    res = @stdout.readline.chomp
+    res = @stdout.readline.chomp.to_i
     return res == 1
   end
 
