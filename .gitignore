@@ -1,8 +1,6 @@
 cache-*.db
 *.swp
 restore
-store
-store-test
-store-local
+store-*
 log
 commits
