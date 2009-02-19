@@ -1,9 +1,11 @@
 require 'gdbm'
 require 'digest/sha1'
 require 'blobcrypt'
+require 'fileutils'
 
 class BlobStore
   def initialize(storedir,store)
+    FileUtils::mkdir_p(storedir)
     @storedir = storedir
     @store = store
     @blobs = GDBM.new(File.join(storedir,"blobs.db"))
