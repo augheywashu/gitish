@@ -5,9 +5,7 @@ require 'writechain'
 kind = ARGV[0].to_sym
 options = eval(ARGV[1])
 
-cachefile = options[:cachefile] || raise("cachefile not found in options")
-
-bm = BackupManager.new(cachefile)
+bm = BackupManager.new(options)
 archive = Archive.new(WriteChain.create(kind,options))
 
 ARGV.shift
