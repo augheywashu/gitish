@@ -8,3 +8,21 @@ h2. Information
 
 More information on the purpose of the files and the concepts will
 come soon.
+
+h1. Files
+
+This is an attempt to explain what each file does from the top-down.
+
+* backup.rb
+** This is the file that can be run from the command line to backup a path 
+to the archive system.  It keeps a local cache of files that have been backed
+up so that there is as little interaction with the lower level Archive
+objects as possible
+
+* backupmanager.rb
+** The BackupManager class handles the local logic of figuring out what files
+need to be archived and keeping a cache of files that have been archived.  BackupManager
+interacts with an Archive object.
+
+* archive.rb
+** The archive...
