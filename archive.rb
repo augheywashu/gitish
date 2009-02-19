@@ -22,9 +22,8 @@ class Archive
     File.open(path,'r') do |f|
       until f.eof?
         data = f.read(CHUNKSIZE)
-        sha = Digest::SHA1.hexdigest(data)
         STDERR.puts "Writing chunk #{chunk} of #{chunks}"
-        @blobstore.write(data,sha) unless @blobstore.has_sha?(sha)
+        sha = @blobstore.write(data)
         shas << sha
         chunk += 1
       end
@@ -37,17 +36,36 @@ class Archive
   end
 
   def read_directory(sha)
-    @blobstore.read_directory(sha)
+    data = YAML.load(read_sha(sha))
+    return data[0],data[1]
   end
 
   def write_directory(path,dirs,files)
     STDERR.puts "Writing directory #{path}"
-    @blobstore.write_directory(dirs,files)
+    for info in dirs + files
+      name,shas = info
+      shas = "" unless shas
+      verify_shas!(shas.split(','))
+    end
+    @blobstore.write([dirs,files].to_yaml)
   end
 
   def write_commit(path,sha)
     STDERR.puts "Writing commit #{sha} - #{path}"
     @blobstore.write_commit(path,sha)
   end
+
+  protected
+
+  def verify_sha!(sha)
+    raise "Could not find #{sha} in blobstore" unless @blobstore.has_sha?(sha)
+  end
+
+  def verify_shas!(shas)
+    for sha in shas
+      verify_sha!(sha)
+    end
+  end
+
 end
 

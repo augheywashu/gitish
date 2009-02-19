@@ -12,12 +12,6 @@ class BlobStoreLocal
     @stderr.sync = true
   end
 
-  def read_directory(sha)
-    @stdin.puts "readdir #{sha}"
-    dirs,files = read_dirs_files(@stdout)
-    return dirs,files
-  end
-
   def close
     @stdin.close
     @stdout.close
@@ -35,12 +29,6 @@ class BlobStoreLocal
     @stdin.puts "readsha #{sha}"
     size = @stdout.readline.chomp.to_i
     @stdout.read(size)
-  end
-
-  def write_directory(dirs,files)
-    @stdin.puts "dir"
-    write_dirs_files(@stdin,dirs,files)
-    @stdout.readline.chomp
   end
 
   def write_commit(path,sha)

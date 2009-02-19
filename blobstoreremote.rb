@@ -36,18 +36,10 @@ begin
       else
         puts "0"
       end
-    elsif command == 'dir'
-      dirs,files = read_dirs_files(STDIN)
-      log.puts dirs.inspect
-      log.puts files.inspect
-      puts store.write_directory(dirs,files)
     elsif command=~/readsha (\w+)/
       data = store.read_sha($1)
       puts data.size
       STDOUT.write(data)
-    elsif command=~/readdir (\w+)/
-      dirs,files = store.read_directory($1)
-      write_dirs_files(STDOUT,dirs,files)
     elsif command=~/commit (\w+)(.*)/
       store.write_commit($2,$1)
       puts "done"

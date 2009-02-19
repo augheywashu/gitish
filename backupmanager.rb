@@ -107,13 +107,17 @@ class BackupManager
 
     cache = cache_for(path)
 
-    ignorefiles = ['.','..','.git','.svn','a.out']
+    ignorefiles = ['.','..','.git','.svn','a.out','0LD COMPUTERS BACKED-UP FILES HERE!']
     ignorepatterns = [/^~/,/^\./,/\.o$/,/\.so$/,/\.a$/]
     onlypatterns = [/\.doc/,/\.xls/]
+
+    onlypatterns = []
     begin
       for e in Dir.entries(path).sort
         next if ignorefiles.include?(e)
         fullpath = File.join(path,e)
+        # Strip off bad characters
+        e.gsub!(/;/,'')
 
         stat = File.stat(fullpath)
 
@@ -129,16 +133,17 @@ class BackupManager
               break
             end
           end
-          skip = true
 
-          for p in onlypatterns
-            if p.match(e)
-              skip = false
-              break
+          unless onlypatterns.empty?
+            skip = true
+            for p in onlypatterns
+              if p.match(e)
+                skip = false
+                break
+              end
             end
+            next if skip
           end
-
-          next if skip
 
           key = cache.key_for(e,stat)
           if key.nil?

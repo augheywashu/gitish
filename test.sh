@@ -3,8 +3,10 @@
 # There should be better tests than this.
 
 export LOG_IO=1
+export GITISH_REMOTE='ruby blobstoreremote.rb'
+export CRYPT_KEY='jklfdsajlkfdsaijofdsaoi'
 
-rm -f store/* *.db
+rm -rf store/* *.db restore/*
 
 sha=`ruby backup.rb ../augtion/test`
 

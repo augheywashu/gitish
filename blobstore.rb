@@ -1,6 +1,7 @@
 require 'gdbm'
 require 'yaml'
 require 'digest/sha1'
+require 'blobcrypt'
 
 class BlobStore
   # Basic factory method to build the store chain
@@ -13,7 +14,7 @@ class BlobStore
       require 'blobstorelocal'
       remote = ENV['GITISH_REMOTE']
       raise "Remote command environment variable not defined (GITISH_REMOTE)" unless remote
-      BlobStoreLocal.new(remote)
+      BlobCrypt.new(BlobStoreLocal.new(remote))
     end
   end
 
@@ -32,30 +33,16 @@ class BlobStore
     @blobs.has_key?(sha)
   end
 
-  def write_directory(dirs,files)
-    for info in dirs + files
-      name,shas = info
-      shas = "" unless shas
-      verify_shas!(shas.split(','))
-    end
-    self.write([dirs,files].to_yaml)
-  end
-
-  def read_directory(sha)
-    data = YAML.load(read_sha(sha))
-    return data[0],data[1]
-  end
-
-  def read_sha(sha)
-    verify_sha!(sha)
-    @store.read(@blobs[sha])
-  end
-
   def write_commit(path,sha)
     verify_sha!(sha)
     File.open(File.join(@storedir,"commits"),'a+') do |f|
       f.puts "#{sha} - #{path} - #{Time.now}"
     end
+  end
+
+  def read_sha(sha)
+    verify_sha!(sha)
+    @store.read(@blobs[sha])
   end
 
   def write(data,sha = nil)
@@ -72,12 +59,5 @@ class BlobStore
   def verify_sha!(sha)
     raise "Could not find #{sha} in blobstore" unless self.has_sha?(sha)
   end
-
-  def verify_shas!(shas)
-    for sha in shas
-      verify_sha!(sha)
-    end
-  end
-
 end
 
