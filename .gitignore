@@ -1,6 +1,6 @@
 *.db
 *.swp
 restore
-store
+store/*
 log
 commits
