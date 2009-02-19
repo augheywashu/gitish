@@ -89,8 +89,8 @@ class BackupManager
 
   end
 
-  def initialize
-    @store = GDBM.new("cache.db")
+  def initialize(cachefile)
+    @store = GDBM.new(cachefile)
   end
 
   def close

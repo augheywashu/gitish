@@ -14,7 +14,7 @@ class BlobStore
   end
 
   def stats
-    ["BlobStore: write #{@datasize.commaize} bytes to the store"]
+    ["BlobStore: wrote #{@datasize.commaize} bytes to the store"]
   end
 
   def close
