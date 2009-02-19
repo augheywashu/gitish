@@ -108,19 +108,11 @@ class BackupManager
     cache = cache_for(path)
 
     ignorefiles = ['.','..','.git','.svn','a.out']
-    ignorepatterns = [/\.o$/,/\.so$/,/\.a$/]
+    ignorepatterns = [/^~/,/^\./,/\.o$/,/\.so$/,/\.a$/]
+    onlypatterns = [/\.doc/,/\.xls/]
     begin
-      for e in Dir.entries(path)
+      for e in Dir.entries(path).sort
         next if ignorefiles.include?(e)
-        skip = false
-        for p in ignorepatterns
-          if p.match(e)
-            skip = true
-            break
-          end
-        end
-        next if skip
-
         fullpath = File.join(path,e)
 
         stat = File.stat(fullpath)
@@ -130,6 +122,24 @@ class BackupManager
           dirs << [e,key]
           cache.remember_dir(e,key,stat)
         else
+          skip = false
+          for p in ignorepatterns
+            if p.match(e)
+              skip = true
+              break
+            end
+          end
+          skip = true
+
+          for p in onlypatterns
+            if p.match(e)
+              skip = false
+              break
+            end
+          end
+
+          next if skip
+
           key = cache.key_for(e,stat)
           if key.nil?
             key = archive.write_file(fullpath)
