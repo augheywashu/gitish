@@ -89,7 +89,11 @@ class BackupManager
 
   end
 
-  def initialize(cachefile)
+  def initialize(options)
+    cachefile = options[:cachefile] || raise("BackupManager: :cachefile option missing")
+    if options[:onlypatterns]
+      @onlypatterns = options[:onlypatterns]
+    end
     @store = GDBM.new(cachefile)
   end
 
@@ -107,14 +111,15 @@ class BackupManager
 
     cache = cache_for(path)
 
-    onlypatterns = []
-    ignorefiles = ['.','..','.git','.svn','a.out','0LD COMPUTERS BACKED-UP FILES HERE!']
-    ignorepatterns = [/^\~/,/^\./,/\.o$/,/\.so$/,/\.a$/]
-    onlypatterns = [/\.doc/,/\.xls/]
+    ignorefiles = ['.','..','.git','.svn','a.out','0ld computers backed-up files here!']
+    ignorepatterns = [/^~/,/^\./,/\.o$/,/\.so$/,/\.a$/]
     begin
       files_to_process = []
       for e in Dir.entries(path).sort
-        next if ignorefiles.include?(e)
+        downcase_e = e.downcase
+
+        next if ignorefiles.include?(downcase_e)
+
         fullpath = File.join(path,e)
         # Strip off bad characters
         e.gsub!(/;/,'')
@@ -128,16 +133,16 @@ class BackupManager
         else
           skip = false
           for p in ignorepatterns
-            if p.match(e)
+            if p.match(downcase_e)
               skip = true
               break
             end
           end
 
-          unless onlypatterns.empty?
+          if @onlypatterns
             skip = true
-            for p in onlypatterns
-              if p.match(e)
+            for p in @onlypatterns
+              if p.match(downcase_e)
                 skip = false
                 break
               end
