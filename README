@@ -1,0 +1,6 @@
+This is called gitish because it is git'ish.  It uses the concepts of
+git in the way git stores information, but is geared towards a remote
+backup system.
+
+More information on the purpose of the files and the concepts will
+come soon.
