@@ -6,8 +6,8 @@ class BlobCrypt < WriteChain
   def initialize(child, options)
     super
 
-    raise "You must set the :crypt_key option" unless options.has_key?(:crypt_key)
-    @key = Digest::SHA1.hexdigest(options[:crypt_key])
+    raise "You must set the :crypt_key option" unless options.has_key?('crypt_key')
+    @key = Digest::SHA1.hexdigest(options['crypt_key'])
   end
 
   def read_sha(sha)

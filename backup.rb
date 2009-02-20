@@ -1,9 +1,10 @@
 require 'backupmanager'
 require 'archive'
 require 'writechain'
+require 'yaml'
 
 kind = ARGV[0].to_sym
-options = eval(ARGV[1])
+options = YAML.load(File.read(ARGV[1]))
 
 bm = BackupManager.new(options)
 archive = Archive.new(WriteChain.create(kind,options))

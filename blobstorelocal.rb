@@ -2,7 +2,7 @@ require "open3"
 
 class BlobStoreLocal
   def initialize(options)
-    command = options[:remote_command] || raise("BlobStoreLocal: :remote_command not defined in options")
+    command = options['remote_command'] || raise("BlobStoreLocal: remote_command not defined in options")
     @stdin,@stdout,@stderr = Open3.popen3(command)
 
     @stdin.sync = true

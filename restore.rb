@@ -22,7 +22,9 @@ def restore_dir(sha,archive,path)
   end
 end
 
-archive = Archive.new(WriteChain.create(ARGV[0].to_sym,eval(ARGV[1])))
+options = YAML.load(File.read(ARGV[1]))
+
+archive = Archive.new(WriteChain.create(ARGV[0].to_sym,options))
 
 ARGV.shift
 ARGV.shift

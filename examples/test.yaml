@@ -1,0 +1,4 @@
+cachefile: cache-test.db
+crypt_key: qrstuvwxyz
+remote_command: ruby remote.rb
+storedir: store-test

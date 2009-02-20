@@ -1,0 +1,6 @@
+cachefile: cache-network.db
+crypt_key: abcdefg
+onlypatterns: 
+  - !ruby/regexp /\.doc/
+  - !ruby/regexp /\.xls/
+remote_command: ssh remotehost.com -C -l remoteuser 'cd src/gitish ; ruby remote.rb'

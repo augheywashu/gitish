@@ -90,9 +90,9 @@ class BackupManager
   end
 
   def initialize(options)
-    cachefile = options[:cachefile] || raise("BackupManager: :cachefile option missing")
-    if options[:onlypatterns]
-      @onlypatterns = options[:onlypatterns]
+    cachefile = options['cachefile'] || raise("BackupManager: :cachefile option missing")
+    if options['onlypatterns']
+      @onlypatterns = options['onlypatterns']
     end
     @store = GDBM.new(cachefile)
     @lookcount = 0

@@ -1,0 +1,3 @@
+storedir: store-local
+cachefile: cache-local.db
+crypt_key: abcdefg

@@ -9,6 +9,39 @@ h2. Information
 More information on the purpose of the files and the concepts will
 come soon.
 
+h1. Usage
+
+The basic command line is...
+
+ruby backup.rb TYPE OPTIONS DIRECTORY
+
+Where TYPE is one of the following:
+
+* local
+** The local type is for storing data to your local machine.
+* network
+** The network type is for sending data to a remote computer over some sort of shell command (typically ssh)
+* remote
+** The remote type shouldn't actually be specified on the command line, but is used by the remote.rb program to setup a write chain for a remote session.
+
+h2. Examples...
+
+h3. Local backups
+
+This is what I run to backup my computer locally...
+
+ruby backup.rb local "`cat local.options`" $@
+
+Where the local.yaml file contains...
+
+storedir: store-local
+cachefile: cache-local.db
+crypt_key: abcdefg
+
+The options is a YAML file that is simply loaded passed on to the write chain factory and objects.  If a required option is not specified, the program will abort.
+
+Options are kept in a separate file so that the backup and restore commands can use the same configuration.
+
 h1. Files
 
 This is an attempt to explain what each file does from the top-down.

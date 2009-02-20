@@ -2,7 +2,7 @@ class SegmentedDataStore
   # Make the maximum size of a single store 4GB (1B = 1000 bytes)
   MAXSIZE = 4000000000
   def initialize(storeclass,options)
-    @storedir = options[:storedir] || raise("SegmentedDataStore: :storedir option not defined")
+    @storedir = options['storedir'] || raise("SegmentedDataStore: storedir option not defined")
     FileUtils::mkdir_p(@storedir)
     @storeclass = storeclass
     @openindex = -1
