@@ -1,3 +1,3 @@
 #!/bin/sh
 
-ruby backup.rb network "`cat remote.options`" $@
+ruby backup.rb network network.yaml $@

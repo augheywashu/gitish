@@ -1,3 +1,3 @@
 #!/bin/sh
 
-ruby backup.rb local "`cat local.options`" $@
+ruby backup.rb local local.yaml $@
