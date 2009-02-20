@@ -22,14 +22,17 @@ class Archive
     size = stat.size
     STDERR.puts "Writing file #{path} (#{size} bytes)"
 
-    chunks = (size / CHUNKSIZE).ceil
+    numchunks = (size / CHUNKSIZE).ceil
 
     shas = []
     chunk = 0
+    chunkmod = numchunks / 4
     File.open(path,'r') do |f|
       until f.eof?
         data = f.read(CHUNKSIZE)
-        STDERR.puts "Writing chunk #{chunk+1} of #{chunks}"
+        if numchunks > 1 and chunk % chunkmod == 0
+          STDERR.puts "Writing chunk #{chunk+1} of #{numchunks}"
+        end
         @datasize += data.size
         sha = @blobstore.write(data)
         shas << sha
