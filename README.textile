@@ -65,6 +65,10 @@ For my particular usage, I take advantage of cheap remote disk space on dreamhos
 
 h1. Files
 
+(Note: The system has been refactored to take advantage of a write-chain.  Some of the 
+information here is still valid, but there are additional elements such as writechain.rb, 
+crypt.rb, and compress.rb.
+
 This is an attempt to explain what each file does from the top-down.
 
 * backup.rb
