@@ -18,18 +18,18 @@ class Archive
     @blobstore.close
   end
 
-  def write_file(path)
-    size = File.stat(path).size
+  def write_file(path,stat)
+    size = stat.size
     STDERR.puts "Writing file #{path} (#{size} bytes)"
 
     chunks = (size / CHUNKSIZE).ceil
 
     shas = []
-    chunk = 1
+    chunk = 0
     File.open(path,'r') do |f|
       until f.eof?
         data = f.read(CHUNKSIZE)
-        STDERR.puts "Writing chunk #{chunk} of #{chunks}"
+        STDERR.puts "Writing chunk #{chunk+1} of #{chunks}"
         @datasize += data.size
         sha = @blobstore.write(data)
         shas << sha

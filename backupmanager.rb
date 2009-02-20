@@ -186,7 +186,7 @@ class BackupManager
 
         key = cache.key_for(e,stat)
         if key.nil?
-          key = archive.write_file(fullpath)
+          key = archive.write_file(fullpath,stat)
         end
 
         files << [e,key]
