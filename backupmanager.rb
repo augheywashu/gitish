@@ -95,6 +95,13 @@ class BackupManager
       @onlypatterns = options[:onlypatterns]
     end
     @store = GDBM.new(cachefile)
+    @lookcount = 0
+    @looksize = 0
+  end
+
+  def stats
+    ["BackupManager: Looked at #{@lookcount.commaize} files.",
+      "BackupManager: Looked at #{@looksize.commaize} bytes."]
   end
 
   def close
@@ -173,6 +180,10 @@ class BackupManager
       # Now do the files.
       for f in files_to_process
         e,fullpath,stat = f
+
+        @lookcount += 1
+        @looksize += stat.size
+
         key = cache.key_for(e,stat)
         if key.nil?
           key = archive.write_file(fullpath)

@@ -6,11 +6,12 @@ class Archive
 
   def initialize(blobstore)
     @blobstore = blobstore
+    @filecount = 0
     @datasize = 0
   end
 
   def stats
-    ["Archive: wrote #{@datasize.commaize} bytes of file data"] + @blobstore.stats
+    ["Archive: wrote #{@filecount.commaize} files","Archive: wrote #{@datasize.commaize} bytes of file data"] + @blobstore.stats
   end
 
   def close

@@ -21,5 +21,6 @@ ensure
   bm.close
   archive.close
 
+  STDERR.puts bm.stats.join("\n")
   STDERR.puts archive.stats.join("\n")
 end
