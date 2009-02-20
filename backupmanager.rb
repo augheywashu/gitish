@@ -52,11 +52,11 @@ class BackupManager
       end
 
       if @newdirs != @dirs 
-        puts "directory #{@path} changed because a directory changed"
+        # STDERR.puts "directory #{@path} changed because a directory changed"
         return true
       end
       if @newfilekeys != @filekeys
-        puts "directory #{@path} changed because a file changed"
+        # STDERR.puts "directory #{@path} changed because a file changed"
         return true
       end
 
@@ -66,7 +66,7 @@ class BackupManager
     protected
 
     def recurse_remove(path)
-      puts "Recurse removing #{path}"
+      # STDERR.puts "Recurse removing #{path}"
       key,filestats,filekeys,dirs = read(path)
       for dir in dirs.keys
         recurse_remove(File.join(path,dir))
@@ -194,7 +194,7 @@ class BackupManager
         cache.remember_file(e,key,stat)
       end
     rescue Exception => e
-      puts "Caught an exception #{e} while archiving #{path}"
+      STDERR.puts "Caught an exception #{e} while archiving #{path}"
       raise
     end
 
