@@ -30,7 +30,7 @@ h3. Local backups
 
 This is what I run to backup my computer locally...
 
-ruby backup.rb local "`cat local.options`" $@
+ruby backup.rb local local.yaml $@
 
 Where the local.yaml file contains...
 
@@ -41,6 +41,27 @@ crypt_key: abcdefg
 The options is a YAML file that is simply loaded passed on to the write chain factory and objects.  If a required option is not specified, the program will abort.
 
 Options are kept in a separate file so that the backup and restore commands can use the same configuration.
+
+h3. Remote Backups
+
+The remote backup is just like the local backup, but refers to a different OPTIONS yaml configuration file.
+
+ruby backup.rb network network.yaml $@
+
+The network.yaml file looks like...
+
+cachefile: cache-network.db
+crypt_key: qrstuvwxyz
+onlypatterns: 
+  - !ruby/regexp /\.doc/
+  - !ruby/regexp /\.xls/
+remote_command: ssh REMOTEHOST.com -C -l REMOTEUSER 'cd src/gitish ; ruby remote.rb'
+
+The new values here are the onlypatterns option which specifies a set of ruby regular expressions to check for what files are allowed to be backed up.  In this case, I am only remotely backing up word documents and excel files.  The filename is downcase'ed before checking the regexp.
+
+The remote_command is what is run to setup a stdin,stdout pipe to the remote.rb program.  remote.rb simply provides basic key read/write/query commands to a remote store.  Future options will provide plugins for s3, http like, webdav, and other remote storage mechanisms.
+
+For my particular usage, I take advantage of cheap remote disk space on dreamhost.com.
 
 h1. Files
 
