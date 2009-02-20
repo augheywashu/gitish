@@ -111,8 +111,17 @@ class BackupManager
 
     cache = cache_for(path)
 
-    ignorefiles = ['.','..','.git','.svn','a.out','0ld computers backed-up files here!']
-    ignorepatterns = [/^~/,/^\./,/\.o$/,/\.so$/,/\.a$/]
+    ignorefiles = ['.','..','.git','.svn','a.out','0ld computers backed-up files here!','thumbs.db']
+    ignorepatterns = [/^~/,/^\./,/\.o$/,/\.so$/,/\.a$/,/\.exe$/,/\.mp3/,
+      /\.wav$/,
+      /\.wma$/,
+      /\.avi$/,
+      /\.m4a$/,
+      /\.m4v$/,
+      /\.tif$/,
+      /\.iso$/,
+      /\.mpg$/]
+
     begin
       files_to_process = []
       for e in Dir.entries(path).sort
@@ -128,8 +137,10 @@ class BackupManager
 
         if File.directory?(fullpath)
           key = archive_directory(fullpath,archive)
-          dirs << [e,key]
-          cache.remember_dir(e,key,stat)
+          if key
+            dirs << [e,key]
+            cache.remember_dir(e,key,stat)
+          end
         else
           skip = false
           for p in ignorepatterns
@@ -138,6 +149,8 @@ class BackupManager
               break
             end
           end
+
+          next if skip
 
           if @onlypatterns
             skip = true
@@ -172,6 +185,12 @@ class BackupManager
     rescue Exception => e
       puts "Caught an exception #{e} while archiving #{path}"
       raise
+    end
+
+    # If this directory is empty, don't bother storing it.
+    # The cache will be deleted by its parent.
+    if dirs.empty? and files.empty?
+      return nil
     end
 
     if cache.changed?
