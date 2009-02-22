@@ -188,6 +188,7 @@ class BackupManager
 
           if skip
             skipfile(stat)
+            next
           end
 
           # Keep a list of the files to do after directories.
