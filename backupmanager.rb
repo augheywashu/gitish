@@ -97,11 +97,17 @@ class BackupManager
     @store = GDBM.new(cachefile)
     @lookcount = 0
     @looksize = 0
+    @skippeddirs = 0
+    @skippedfiles = 0
+    @skippedsize = 0
   end
 
   def stats
     ["BackupManager: Looked at #{@lookcount.commaize} files.",
-      "BackupManager: Looked at #{@looksize.commaize} bytes."]
+      "BackupManager: Looked at #{@looksize.commaize} bytes.",
+      "BackupManager: skipped #{@skippeddirs.commaize} directories.",
+      "BackupManager: skipped #{@skippedfiles.commaize} files.",
+      "BackupManager: skipped #{@skippedsize.commaize} bytes (of skipped files)."]
   end
 
   def close
@@ -134,13 +140,33 @@ class BackupManager
       for e in Dir.entries(path).sort
         downcase_e = e.downcase
 
-        next if ignorefiles.include?(downcase_e)
-
         fullpath = File.join(path,e)
+        stat = File.stat(fullpath)
+
+        # Only do files or directories
+        # Should we try following symlinks to files?
+        # Should we try following symlinks to dirs?
+        next unless stat.file? or stat.directory?
+
+        if ignorefiles.include?(downcase_e)
+          skipfile(stat)
+          next
+        end
+
         # Strip off bad characters
         e.gsub!(/;/,'')
 
-        stat = File.stat(fullpath)
+        # Check the ignore patterns even before going into directories
+        skip = false
+        for p in ignorepatterns
+          if p.match(downcase_e)
+            skip = true
+            skipfile(stat)
+            break
+          end
+        end
+
+        next if skip
 
         if File.directory?(fullpath)
           key = archive_directory(fullpath,archive)
@@ -149,16 +175,7 @@ class BackupManager
             cache.remember_dir(e,key,stat)
           end
         else
-          skip = false
-          for p in ignorepatterns
-            if p.match(downcase_e)
-              skip = true
-              break
-            end
-          end
-
-          next if skip
-
+          # Check for only patterns if they exist
           if @onlypatterns
             skip = true
             for p in @onlypatterns
@@ -169,7 +186,9 @@ class BackupManager
             end
           end
 
-          next if skip
+          if skip
+            skipfile(stat)
+          end
 
           # Keep a list of the files to do after directories.
           # We do the files afterwards to reduce re-writes on aborts
@@ -212,6 +231,17 @@ class BackupManager
     cache.save!
 
     cache.key
+  end
+
+  protected
+
+  def skipfile(stat)
+    if stat.directory?
+      @skippeddirs += 1
+    else
+      @skippedfiles += 1
+      @skippedsize += stat.size
+    end
   end
 
 end
