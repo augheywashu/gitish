@@ -1,4 +1,3 @@
 storedir: store-local
 cachefile: cache-local.db
-localshacachefile: shacache-local.db
 crypt_key: abcdefg
