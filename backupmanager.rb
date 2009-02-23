@@ -1,94 +1,20 @@
+require 'fileutils'
 require 'gdbm'
 require 'yaml'
 
-class BackupManager
-  class DirCache
-    attr_accessor :key
-    def initialize(path,store)
-      @path = path
-      @store = store
-
-      @key,@filestats,@filekeys,@dirs = read(path)
-
-      @newfilestats = { }
-      @newfilekeys = { }
-      @newdirs = { }
+class File
+  class Stat
+    def to_hash(mtime = self.mtime.to_i, ctime = self.ctime.to_i)
+      { :mtime => mtime,
+        :ctime => ctime,
+        :gid => self.gid,
+        :uid => self.uid,
+        :mode => self.mode }
     end
-
-    def save!
-      # Remove all old files from the cache
-      for removedir in @dirs.keys - @newdirs.keys
-        recurse_remove(File.join(@path,removedir))
-      end
-
-      # Save our data into the cache
-      write([key,@newfilestats,@newfilekeys,@newdirs])
-    end
-
-    def remember_dir(dir,key,stat)
-      @newdirs[dir] = key
-    end
-
-    def remember_file(file,key,stat)
-      @newfilestats[file] = stat.mtime
-      @newfilekeys[file] = key
-    end
-
-    def key_for(file,stat)
-      storedstat = @filestats[file]
-      return nil if storedstat.nil?
-
-      if storedstat == stat.mtime
-        return @filekeys[file]
-      else
-        return nil
-      end
-    end
-
-    def changed?
-      if @key.nil?
-        # We didn't have a key to begin with
-        return true
-      end
-
-      if @newdirs != @dirs 
-        # STDERR.puts "directory #{@path} changed because a directory changed"
-        return true
-      end
-      if @newfilekeys != @filekeys
-        # STDERR.puts "directory #{@path} changed because a file changed"
-        return true
-      end
-
-      return false
-    end
-
-    protected
-
-    def recurse_remove(path)
-      # STDERR.puts "Recurse removing #{path}"
-      key,filestats,filekeys,dirs = read(path)
-      for dir in dirs.keys
-        recurse_remove(File.join(path,dir))
-      end
-      @store.delete(path)
-    end
-
-    def write(data)
-      @store[@path] = data.to_yaml
-    end
-
-    def read(path)
-      if @store.has_key?(path)
-        data = YAML.load(@store[path])
-        return data[0],data[1],data[2],data[3]
-      else
-        return nil,{ },{ },{ }
-      end
-    end
-
   end
+end
 
+class BackupManager
   def initialize(options)
     cachefile = options['cachefile'] || raise("BackupManager: :cachefile option missing")
     if options['onlypatterns']
@@ -114,15 +40,67 @@ class BackupManager
     @store.close
   end
 
+  module CacheHelperMethods
+    def each_sha
+      for f,info in self[:files]
+        for sha in info[:shas]
+          yield sha
+        end
+      end
+      for f,info in self[:dirs]
+        yield info[:sha]
+      end
+    end
+
+    def empty?
+      self[:dirs].empty? and self[:files].empty?
+    end
+
+    def add_directory(name, sha, stat)
+      self[:dirs][name] = { :sha => sha, :stat => stat.to_hash(nil,nil) }
+    end
+
+    def add_file(name, shas, stat)
+      self[:files][name] = { :shas => shas, :stat => stat.to_hash }
+    end
+
+    def file_shas_for(file,stat)
+      info = self[:files][file]
+
+      return nil if info.nil?
+
+      s = info[:stat]
+      if s[:mtime] == stat.mtime.to_i and s[:ctime] == stat.ctime.to_i
+        return info[:shas]
+      else
+        return nil
+      end
+    end
+  end
+
+  def empty_info
+    ret = { :files => {}, :dirs => {} }
+  end
+
+  def save_info(path,info)
+    @store[path] = info.to_yaml
+  end
+
   def cache_for(path)
-    DirCache.new(path,@store)
+    values = @store[path]
+    ret = nil
+    if values
+      ret = YAML.load(values)
+    else
+      ret = empty_info
+    end
+    ret.extend CacheHelperMethods
   end
 
   def archive_directory(path,archive)
-    files = []
-    dirs = []
-
     cache = cache_for(path)
+    thisinfo = empty_info
+    thisinfo.extend CacheHelperMethods
 
     ignorefiles = ['.','..','.git','.svn','a.out','0ld computers backed-up files here!','thumbs.db']
     ignorepatterns = [/^~/,/^\./,/\.o$/,/\.so$/,/\.a$/,/\.exe$/,/\.mp3/,
@@ -169,10 +147,9 @@ class BackupManager
         next if skip
 
         if File.directory?(fullpath)
-          key = archive_directory(fullpath,archive)
-          if key
-            dirs << [e,key]
-            cache.remember_dir(e,key,stat)
+          sha = archive_directory(fullpath,archive)
+          if sha
+            thisinfo.add_directory(e,sha,stat)
           end
         else
           # Check for only patterns if they exist
@@ -204,14 +181,12 @@ class BackupManager
         @lookcount += 1
         @looksize += stat.size
 
-        key = cache.key_for(e,stat)
-        if key.nil?
-          key = archive.write_file(fullpath,stat)
+        shas = cache.file_shas_for(e,stat)
+        if shas.nil?
+          shas = archive.write_file(fullpath,stat)
         end
 
-        files << [e,key]
-
-        cache.remember_file(e,key,stat)
+        thisinfo.add_file(e,shas,stat)
       end
     rescue Exception => e
       STDERR.puts "Caught an exception #{e} while archiving #{path}"
@@ -220,19 +195,43 @@ class BackupManager
 
     # If this directory is empty, don't bother storing it.
     # The cache will be deleted by its parent.
-    if dirs.empty? and files.empty?
+    if thisinfo.empty?
       return nil
     end
 
-    if cache.changed?
-      key = archive.write_directory(path,dirs,files)
-      cache.key = key
+    # Remember and remove the old cached sha
+    cachedsha = cache[:sha]
+    cache.delete(:sha)
+
+    if thisinfo != cache
+      sha = archive.write_directory(path,thisinfo)
+      thisinfo[:sha] = sha
     end
 
-    cache.save!
+    save_info(path,thisinfo)
 
-    cache.key
+    thisinfo[:sha]
   end
+
+  def restore_dir(sha,archive,path)
+    STDERR.puts "Restoring directory #{path} #{sha}"
+    FileUtils.mkdir_p(path)
+
+    info = archive.read_directory(sha)
+    for dirname,dirinfo in info[:dirs]
+      restore_dir(dirinfo[:sha],archive,File.join(path,dirname))
+    end
+    for filename,info in info[:files]
+      fullpath = File.join(path,filename)
+      STDERR.puts "Restoring file #{fullpath}"
+      File.open(fullpath,"w") do |f|
+        for sha in info[:shas]
+          f.write(archive.read_sha(sha))
+        end
+      end
+    end
+  end
+
 
   protected
 

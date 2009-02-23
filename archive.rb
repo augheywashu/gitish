@@ -39,26 +39,24 @@ class Archive
         chunk += 1
       end
     end
-    shas.join(',')
+    shas
   end
 
   def read_sha(sha)
+    verify_sha!(sha)
     @blobstore.read_sha(sha)
   end
 
   def read_directory(sha)
-    data = YAML.load(read_sha(sha))
-    return data[0],data[1]
+    YAML.load(read_sha(sha))
   end
 
-  def write_directory(path,dirs,files)
+  def write_directory(path,info)
     STDERR.puts "Writing directory #{path}"
-    for info in dirs + files
-      name,shas = info
-      shas = "" unless shas
-      verify_shas!(shas.split(','))
+    info.each_sha do |sha|
+      verify_sha!(sha)
     end
-    @blobstore.write([dirs,files].to_yaml)
+    @blobstore.write(info.to_yaml)
   end
 
   def write_commit(sha,message)
@@ -69,7 +67,7 @@ class Archive
   protected
 
   def verify_sha!(sha)
-    raise "Could not find #{sha} in blobstore" unless @blobstore.has_sha?(sha)
+    raise "Could not find #{sha} in blobstore" unless @blobstore.has_sha?(sha, :bypass_cache)
   end
 
   def verify_shas!(shas)

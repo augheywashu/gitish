@@ -1,7 +1,10 @@
 require 'archive'
 require 'writechain'
 
-archive = Archive.new(WriteChain.create(ARGV[0].to_sym,eval(ARGV[1])))
+kind = ARGV[0].to_sym
+options = YAML.load(File.read(ARGV[1]))
+
+archive = Archive.new(WriteChain.create(kind,options))
 
 ARGV.shift
 ARGV.shift

@@ -22,7 +22,7 @@ class BlobStore
     @store.close
   end
 
-  def has_sha?(sha)
+  def has_sha?(sha, skip_cache)
     @blobs.has_key?(sha)
   end
 
@@ -34,7 +34,6 @@ class BlobStore
   end
 
   def read_sha(sha)
-    verify_sha!(sha)
     @store.read(@blobs[sha])
   end
 
@@ -53,7 +52,7 @@ class BlobStore
   protected
 
   def verify_sha!(sha)
-    raise "Could not find #{sha} in blobstore" unless self.has_sha?(sha)
+    raise "Could not find #{sha} in blobstore" unless self.has_sha?(sha,:bypass_cache)
   end
 end
 

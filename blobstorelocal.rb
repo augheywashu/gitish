@@ -24,7 +24,7 @@ class BlobStoreLocal
     @stderr.close
   end
 
-  def has_sha?(sha)
+  def has_sha?(sha, skip_cache)
     puts "sha? #{sha}"
     res = readline.chomp.to_i
     return res == 1
