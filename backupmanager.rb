@@ -21,11 +21,15 @@ class File
 end
 
 class BackupManager
-  def initialize(options)
+  attr_reader :archive
+  def initialize(archive, options)
+    @archive = archive
+
     cachefile = options['cachefile'] || raise("BackupManager: :cachefile option missing")
     if options['onlypatterns']
       @onlypatterns = options['onlypatterns']
     end
+
     @store = GDBM.new(cachefile)
     @lookcount = 0
     @looksize = 0
@@ -103,7 +107,7 @@ class BackupManager
     ret.extend CacheHelperMethods
   end
 
-  def archive_directory(path,archive)
+  def archive_directory(path)
     cache = cache_for(path)
     thisinfo = empty_info
     thisinfo.extend CacheHelperMethods
@@ -154,7 +158,7 @@ class BackupManager
         next if skip
 
         if File.directory?(fullpath)
-          sha = archive_directory(fullpath,archive)
+          sha = archive_directory(fullpath)
           if sha
             thisinfo.add_directory(e,sha,stat)
           end
@@ -213,6 +217,8 @@ class BackupManager
     if thisinfo != cache
       sha = archive.write_directory(path,thisinfo)
       thisinfo[:sha] = sha
+    else
+      thisinfo[:sha] = cachedsha
     end
 
     save_info(path,thisinfo)
@@ -220,13 +226,13 @@ class BackupManager
     thisinfo[:sha]
   end
 
-  def restore_dir(sha,archive,path)
+  def restore_dir(sha,path)
     STDERR.puts "Restoring directory #{path} #{sha}"
     FileUtils.mkdir_p(path)
 
     info = archive.read_directory(sha)
     for dirname,dirinfo in info[:dirs]
-      restore_dir(dirinfo[:sha],archive,File.join(path,dirname))
+      restore_dir(dirinfo[:sha],File.join(path,dirname))
     end
     for filename,info in info[:files]
       fullpath = File.join(path,filename)
@@ -239,6 +245,21 @@ class BackupManager
     end
   end
 
+  def verify_tree(sha,path,&block)
+    STDERR.puts "Verifying directory #{sha}"
+    info = archive.read_directory(sha)
+    for dirname,dirinfo in info[:dirs]
+      verify_tree(dirinfo[:sha],File.join(path,dirname),&block)
+    end
+    for filename,info in info[:files]
+      fullpath = File.join(path,filename)
+      yield fullpath,info[:shas]
+    end
+  end
+
+  def read_sha(sha)
+    archive.read_sha(sha)
+  end
 
   protected
 
