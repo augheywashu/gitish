@@ -1,7 +1,6 @@
 require 'fileutils'
 
 class FileWalker
-  attr_reader :archive
   def initialize(options)
     if options['onlypatterns']
       @onlypatterns = options['onlypatterns']
@@ -55,9 +54,6 @@ class FileWalker
           skipfile(stat)
           next
         end
-
-        # Strip off bad characters
-        e.gsub!(/;/,'')
 
         # Check the ignore patterns even before going into directories
         skip = false
@@ -126,10 +122,6 @@ class FileWalker
       fullpath = File.join(path,filename)
       yield fullpath,info[:shas]
     end
-  end
-
-  def read_sha(sha)
-    archive.read_sha(sha)
   end
 
   protected
