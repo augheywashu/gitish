@@ -2,6 +2,12 @@ require 'fileutils'
 require 'gdbm'
 require 'yaml'
 
+# ctime -- In UNIX , it is not possible to tell the actual creation time of a file. The ctime--change time--is the time when changes were made to the file or directory's inode (owner, permissions, etc.). It is needed by the dump command to determine if the file needs to be backed up. You can view the ctime with the ls -lc command.
+
+# atime -- The atime--access time--is the time when the data of a file was last accessed. Displaying the contents of a file or executing a shell script will update a file's atime, for example. You can view the atime with the ls -lu command.
+
+# mtime -- The mtime--modify time--is the time when the actual contents of a file was last modified. This is the time displayed in a long directoring listing (ls -l).
+
 class File
   class Stat
     def to_hash(mtime = self.mtime.to_i, ctime = self.ctime.to_i)
@@ -111,6 +117,7 @@ class BackupManager
       /\.m4v$/,
       /\.tif$/,
       /\.iso$/,
+      /\.tmp$/,
       /\.mpg$/]
 
     begin
