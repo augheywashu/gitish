@@ -16,7 +16,7 @@ module CommandLine
 
     begin
       for arg in argv
-        yield bm,arg
+        yield bm,arg,options
       end
     ensure
       bm.close

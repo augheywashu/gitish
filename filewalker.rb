@@ -1,36 +1,10 @@
 require 'fileutils'
-require 'gdbm'
-require 'yaml'
 
-# ctime -- In UNIX , it is not possible to tell the actual creation time of a file. The ctime--change time--is the time when changes were made to the file or directory's inode (owner, permissions, etc.). It is needed by the dump command to determine if the file needs to be backed up. You can view the ctime with the ls -lc command.
-
-# atime -- The atime--access time--is the time when the data of a file was last accessed. Displaying the contents of a file or executing a shell script will update a file's atime, for example. You can view the atime with the ls -lu command.
-
-# mtime -- The mtime--modify time--is the time when the actual contents of a file was last modified. This is the time displayed in a long directoring listing (ls -l).
-
-class File
-  class Stat
-    def to_hash(mtime = self.mtime.to_i, ctime = self.ctime.to_i)
-      { :mtime => mtime,
-        :ctime => ctime,
-        :gid => self.gid,
-        :uid => self.uid,
-        :mode => self.mode }
-    end
-  end
-end
-
-class BackupManager
+class FileWalker
   attr_reader :archive
-  def initialize(archive, options)
+  def initialize(options)
     @archive = archive
 
-    cachefile = options['cachefile'] || raise("BackupManager: :cachefile option missing")
-    if options['onlypatterns']
-      @onlypatterns = options['onlypatterns']
-    end
-
-    @store = GDBM.new(cachefile)
     @lookcount = 0
     @looksize = 0
     @skippeddirs = 0
@@ -46,71 +20,8 @@ class BackupManager
       "BackupManager: skipped #{@skippedsize.commaize} bytes (of skipped files)."]
   end
 
-  def close
-    @store.close
-  end
-
-  module CacheHelperMethods
-    def each_sha
-      for f,info in self[:files]
-        for sha in info[:shas]
-          yield sha
-        end
-      end
-      for f,info in self[:dirs]
-        yield info[:sha]
-      end
-    end
-
-    def empty?
-      self[:dirs].empty? and self[:files].empty?
-    end
-
-    def add_directory(name, sha, stat)
-      self[:dirs][name] = { :sha => sha, :stat => stat.to_hash(nil,nil) }
-    end
-
-    def add_file(name, shas, stat)
-      self[:files][name] = { :shas => shas, :stat => stat.to_hash }
-    end
-
-    def file_shas_for(file,stat)
-      info = self[:files][file]
-
-      return nil if info.nil?
-
-      s = info[:stat]
-      if s[:mtime] == stat.mtime.to_i and s[:ctime] == stat.ctime.to_i
-        return info[:shas]
-      else
-        return nil
-      end
-    end
-  end
-
-  def empty_info
-    ret = { :files => {}, :dirs => {} }
-  end
-
-  def save_info(path,info)
-    @store[path] = info.to_yaml
-  end
-
-  def cache_for(path)
-    values = @store[path]
-    ret = nil
-    if values
-      ret = YAML.load(values)
-    else
-      ret = empty_info
-    end
-    ret.extend CacheHelperMethods
-  end
-
-  def archive_directory(path)
-    cache = cache_for(path)
-    thisinfo = empty_info
-    thisinfo.extend CacheHelperMethods
+  def archive_directory(path,handler)
+    handler.begin_directory(path)
 
     ignorefiles = ['.','..','.git','.svn','a.out','0ld computers backed-up files here!','thumbs.db']
     ignorepatterns = [/^~/,/^\./,/\.o$/,/\.so$/,/\.a$/,/\.exe$/,/\.mp3/,
@@ -126,6 +37,7 @@ class BackupManager
 
     begin
       files_to_process = []
+
       for e in Dir.entries(path).sort
         downcase_e = e.downcase
 
@@ -158,10 +70,9 @@ class BackupManager
         next if skip
 
         if File.directory?(fullpath)
-          sha = archive_directory(fullpath)
-          if sha
-            thisinfo.add_directory(e,sha,stat)
-          end
+          ret = archive_directory(fullpath,handler)
+
+          handler.add_directory(e,fullpath,stat,ret)
         else
           # Check for only patterns if they exist
           if @onlypatterns
@@ -192,38 +103,15 @@ class BackupManager
         @lookcount += 1
         @looksize += stat.size
 
-        shas = cache.file_shas_for(e,stat)
-        if shas.nil?
-          shas = archive.write_file(fullpath,stat)
-        end
-
-        thisinfo.add_file(e,shas,stat)
+        handler.process_file(e,fullpath,stat)
       end
+
     rescue Exception => e
       STDERR.puts "Caught an exception #{e} while archiving #{path}"
       raise
     end
 
-    # If this directory is empty, don't bother storing it.
-    # The cache will be deleted by its parent.
-    if thisinfo.empty?
-      return nil
-    end
-
-    # Remember and remove the old cached sha
-    cachedsha = cache[:sha]
-    cache.delete(:sha)
-
-    if thisinfo != cache
-      sha = archive.write_directory(path,thisinfo)
-      thisinfo[:sha] = sha
-    else
-      thisinfo[:sha] = cachedsha
-    end
-
-    save_info(path,thisinfo)
-
-    thisinfo[:sha]
+    handler.end_directory(path)
   end
 
   def restore_dir(sha,path)
