@@ -3,7 +3,9 @@ require 'fileutils'
 class FileWalker
   attr_reader :archive
   def initialize(options)
-    @archive = archive
+    if options['onlypatterns']
+      @onlypatterns = options['onlypatterns']
+    end
 
     @lookcount = 0
     @looksize = 0
@@ -13,14 +15,14 @@ class FileWalker
   end
 
   def stats
-    ["BackupManager: Looked at #{@lookcount.commaize} files.",
-      "BackupManager: Looked at #{@looksize.commaize} bytes.",
-      "BackupManager: skipped #{@skippeddirs.commaize} directories.",
-      "BackupManager: skipped #{@skippedfiles.commaize} files.",
-      "BackupManager: skipped #{@skippedsize.commaize} bytes (of skipped files)."]
+    ["FileWalker: Looked at #{@lookcount.commaize} files.",
+      "FileWalker: Looked at #{@looksize.commaize} bytes.",
+      "FileWalker: skipped #{@skippeddirs.commaize} directories.",
+      "FileWalker: skipped #{@skippedfiles.commaize} files.",
+      "FileWalker: skipped #{@skippedsize.commaize} bytes (of skipped files)."]
   end
 
-  def archive_directory(path,handler)
+  def walk_directory(path,handler)
     handler.begin_directory(path)
 
     ignorefiles = ['.','..','.git','.svn','a.out','0ld computers backed-up files here!','thumbs.db']
@@ -70,7 +72,7 @@ class FileWalker
         next if skip
 
         if File.directory?(fullpath)
-          ret = archive_directory(fullpath,handler)
+          ret = walk_directory(fullpath,handler)
 
           handler.add_directory(e,fullpath,stat,ret)
         else
@@ -112,25 +114,6 @@ class FileWalker
     end
 
     handler.end_directory(path)
-  end
-
-  def restore_dir(sha,path)
-    STDERR.puts "Restoring directory #{path} #{sha}"
-    FileUtils.mkdir_p(path)
-
-    info = archive.read_directory(sha)
-    for dirname,dirinfo in info[:dirs]
-      restore_dir(dirinfo[:sha],File.join(path,dirname))
-    end
-    for filename,info in info[:files]
-      fullpath = File.join(path,filename)
-      STDERR.puts "Restoring file #{fullpath}"
-      File.open(fullpath,"w") do |f|
-        for sha in info[:shas]
-          f.write(archive.read_sha(sha))
-        end
-      end
-    end
   end
 
   def verify_tree(sha,path,&block)

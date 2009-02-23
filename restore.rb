@@ -1,7 +1,10 @@
 require 'commandline'
+require 'backuphandler'
 
-CommandLine.create(ARGV) do |bm,sha|
-  bm.restore_dir(sha,"restore")
+CommandLine.create(ARGV) do |archive,sha,options|
+  handler = BackupHandler.new(archive,options)
+
+  handler.restore_dir(sha,"restore")
 end
 
 exit 0

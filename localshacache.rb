@@ -1,4 +1,5 @@
 require 'writechain'
+require 'gdbm'
 
 class LocalSHACache < WriteChain
   def initialize(child,options = { })

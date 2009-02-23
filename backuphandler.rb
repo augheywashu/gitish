@@ -1,4 +1,5 @@
 require 'handler'
+require 'fileutils'
 
 # ctime -- In UNIX , it is not possible to tell the actual creation time of a file. The ctime--change time--is the time when changes were made to the file or directory's inode (owner, permissions, etc.). It is needed by the dump command to determine if the file needs to be backed up. You can view the ctime with the ls -lc command.
 
@@ -19,6 +20,7 @@ class File
 end
 
 class BackupHandler < Handler
+  attr_reader :archive
   def initialize(archive,options)
     @archive = archive
 
@@ -82,6 +84,26 @@ class BackupHandler < Handler
     pop
     sha
   end
+
+  def restore_dir(sha,path)
+    STDERR.puts "Restoring directory #{path} #{sha}"
+    FileUtils.mkdir_p(path)
+
+    info = archive.read_directory(sha)
+    for dirname,dirinfo in info[:dirs]
+      restore_dir(dirinfo[:sha],File.join(path,dirname))
+    end
+    for filename,info in info[:files]
+      fullpath = File.join(path,filename)
+      STDERR.puts "Restoring file #{fullpath}"
+      File.open(fullpath,"w") do |f|
+        for sha in info[:shas]
+          f.write(archive.read_sha(sha))
+        end
+      end
+    end
+  end
+
 
   protected
 

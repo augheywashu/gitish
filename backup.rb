@@ -1,11 +1,13 @@
 require 'commandline'
 require 'backuphandler'
+require 'filewalker'
 
-CommandLine.create(ARGV) do |bm,path,options|
-  handler = BackupHandler.new(bm.archive,options)
+CommandLine.create(ARGV) do |archive,path,options|
+  handler = BackupHandler.new(archive,options)
+  walker = FileWalker.new(options)
 
-  sha = bm.archive_directory(path,handler)
-  bm.archive.write_commit(sha,path + " - " + Time.now.to_s)
+  sha = walker.walk_directory(path,handler)
+  archive.write_commit(sha,path + " - " + Time.now.to_s)
   puts sha
 
   handler.close
