@@ -30,7 +30,7 @@ class Archive
     File.open(path,'r') do |f|
       until f.eof?
         data = f.read(CHUNKSIZE)
-        if numchunks > 1 and chunk % chunkmod == 0
+        if numchunks > 4 and chunk % chunkmod == 0
           STDERR.puts "Writing chunk #{chunk+1} of #{numchunks}"
         end
         @datasize += data.size
