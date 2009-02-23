@@ -1,4 +1,5 @@
 cachefile: cache-network.db
+localshacachefile: shacache-network.db
 crypt_key: abcdefg
 onlypatterns: 
   - !ruby/regexp /\.doc/

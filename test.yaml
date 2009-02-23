@@ -1,4 +1,5 @@
 cachefile: cache-test.db
+localshacachefile: shacache-test.db
 crypt_key: jfaiowjioewajg
 remote_command: ruby remote.rb
 storedir: store-test

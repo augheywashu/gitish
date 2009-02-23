@@ -25,3 +25,5 @@ ensure
   STDERR.puts bm.stats.join("\n")
   STDERR.puts archive.stats.join("\n")
 end
+
+exit 0

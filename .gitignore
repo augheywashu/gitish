@@ -1,4 +1,4 @@
-cache-*.db
+*.db
 *.swp
 restore
 store-*

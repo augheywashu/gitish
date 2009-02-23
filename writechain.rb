@@ -22,9 +22,10 @@ class WriteChain
       require 'keyify'
       require 'compress'
       require 'writecheck'
+      require 'localshacache'
       require 'blobstorelocal'
 
-      Compress.new(BlobCrypt.new(Keyify.new(WriteCheck.new(BlobStoreLocal.new(options))),options))
+      Compress.new(BlobCrypt.new(Keyify.new(WriteCheck.new(LocalSHACache.new(BlobStoreLocal.new(options),options),options),options),options),options)
     elsif kind == :remote
       require 'segmented_datastore'
       require 'blobstore'
@@ -35,8 +36,9 @@ class WriteChain
       require 'keyify'
       require 'compress'
       require 'writecheck'
+      require 'localshacache'
 
-      Compress.new(BlobCrypt.new(Keyify.new(WriteCheck.new(create(:remote,options))),options))
+      Compress.new(BlobCrypt.new(Keyify.new(WriteCheck.new(LocalSHACache.new(create(:remote,options),options),options),options),options),options)
     else
       raise "Do not know how to create WriteChain #{kind}"
     end
@@ -47,8 +49,12 @@ class WriteChain
     @child.read_sha(sha)
   end
 
-  def write(data)
-    @child.write(data)
+  def write(data,sha=nil)
+    ret = @child.write(data,sha)
+    if sha
+      raise "WriteChain: child didn't return the same sha given.  #{sha} != #{ret}" if sha != ret
+    end
+    ret
   end
 
 

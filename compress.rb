@@ -2,9 +2,10 @@ require 'writechain'
 require 'zlib'
 
 class Compress < WriteChain
-  def write(data)
+  def write(data,sha)
+    raise "Compress: sha should not be defined in write" if sha
     compresseddata = Zlib::Deflate.deflate(data)
-    super(compresseddata)
+    super(compresseddata,sha)
   end
 
   def read_sha(sha)

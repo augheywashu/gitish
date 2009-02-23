@@ -34,7 +34,7 @@ class Archive
           STDERR.puts "Writing chunk #{chunk+1} of #{numchunks}"
         end
         @datasize += data.size
-        sha = @blobstore.write(data)
+        sha = @blobstore.write(data,nil)
         shas << sha
         chunk += 1
       end
@@ -56,7 +56,7 @@ class Archive
     info.each_sha do |sha|
       verify_sha!(sha)
     end
-    @blobstore.write(info.to_yaml)
+    @blobstore.write(info.to_yaml,nil)
   end
 
   def write_commit(sha,message)

@@ -24,7 +24,7 @@ class WriteCheck < WriteChain
     else
       @numpassed += 1
       @sizepassed += data.size
-      return @child.write(data,sha)
+      return super
     end
   end
 end
