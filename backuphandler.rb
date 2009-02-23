@@ -74,11 +74,10 @@ class BackupHandler < Handler
     if @thisinfo != @cache
       sha = @archive.write_directory(path,@thisinfo)
       @thisinfo[:sha] = sha
+      save_info(path,@thisinfo)
     else
       @thisinfo[:sha] = cachedsha
     end
-
-    save_info(path,@thisinfo)
 
     sha = @thisinfo[:sha]
     pop
