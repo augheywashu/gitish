@@ -30,6 +30,7 @@ class Archive
     shas = []
     chunk = 0
     chunkmod = numchunks / 4
+    begin
     File.open(path,'r') do |f|
       until f.eof?
         data = f.read(CHUNKSIZE)
@@ -41,6 +42,10 @@ class Archive
         shas << sha
         chunk += 1
       end
+    end
+    rescue Errno::EACCES
+      STDERR.puts "Could not access #{path}.  Not backed up."
+      return nil
     end
     shas
   end

@@ -56,7 +56,7 @@ class BackupHandler < Handler
       shas = @archive.write_file(fullpath,stat)
     end
 
-    @thisinfo.add_file(e,shas,stat)
+    @thisinfo.add_file(e,shas,stat) if shas
   end
 
   def end_directory(path)
