@@ -8,10 +8,13 @@ class Archive
     @blobstore = blobstore
     @filecount = 0
     @datasize = 0
+    @readsize = 0
   end
 
   def stats
-    ["Archive: wrote #{@filecount.commaize} files","Archive: wrote #{@datasize.commaize} bytes of file data"] + @blobstore.stats
+    ["Archive: wrote #{@filecount.commaize} files",
+      "Archive: wrote #{@datasize.commaize} bytes of file data",
+      "Archive: read #{@readsize.commaize} bytes"] + @blobstore.stats
   end
 
   def close
@@ -44,7 +47,9 @@ class Archive
 
   def read_sha(sha)
     verify_sha!(sha)
-    @blobstore.read_sha(sha)
+    res = @blobstore.read_sha(sha)
+    @readsize += res.size
+    res
   end
 
   def read_directory(sha)
