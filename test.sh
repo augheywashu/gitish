@@ -4,9 +4,9 @@
 
 export LOG_IO=1
 
-rm -rf store-test/* store/* cache-test.db shacache-test.db restore/*
+rm -rf log store-test/* store/* cache-test.db shacache-test.db restore/*
 
-method=local
+method=network
 
 sha=`ruby backup.rb $method test.yaml /fileserver/Personal/terri`
 

@@ -14,8 +14,7 @@ else
 end
 
 begin
-
-  store = WriteChain.create(:remote,{ :storedir => 'store-remote' })
+  store = WriteChain.create(:remote,{ 'storedir' => 'store-remote' })
 
   STDIN.sync = true
   STDOUT.sync = true
@@ -26,7 +25,7 @@ begin
     command = STDIN.readline.chomp
     log.puts "got #{command}"
     if command=~/sha\? (.*)/
-      if store.has_sha?($1)
+      if store.has_sha?($1,false)
         puts "1"
       else
         puts "0"
