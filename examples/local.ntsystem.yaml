@@ -17,6 +17,7 @@ ignorepatterns:
   - !ruby/regexp /\.msi$/
   - !ruby/regexp /\.o$/
   - !ruby/regexp /^~/
+  - !ruby/regexp /^\./
   - !ruby/regexp /^\$/
   - !ruby/regexp /^ntuser.*/
 ignorefiles:
