@@ -9,6 +9,7 @@ class FileWalker
     @ignorefiles = options['ignorefiles'] ||
       ['.git','.svn','a.out','thumbs.db']
 
+
     @ignorepatterns = options['ignorepatterns'] ||
       [/^~/,
         /^\./,
@@ -27,6 +28,8 @@ class FileWalker
     #/\.tif$/,
     #/\.mpg$/,
 
+    @ignoredirpatterns = options['ignoredirpatterns'] || []
+
     @lookcount = 0
     @looksize = 0
     @skippeddirs = 0
@@ -43,6 +46,12 @@ class FileWalker
   end
 
   def walk_directory(path,handler)
+    for p in @ignoredirpatterns
+      if p.match(path)
+        return nil
+      end
+    end
+
     handler.begin_directory(path)
 
     begin
