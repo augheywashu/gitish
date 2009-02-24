@@ -7,9 +7,13 @@ ignorepatterns:
   - !ruby/regexp /\.dll$/
   - !ruby/regexp /\.tmp$/
   - !ruby/regexp /\.iso$/
+  - !ruby/regexp /\.lib$/
   - !ruby/regexp /\.wav$/
+  - !ruby/regexp /\.ini$/
+  - !ruby/regexp /\.lnk$/
   - !ruby/regexp /\.so$/
   - !ruby/regexp /\.sys$/
+  - !ruby/regexp /_$/
   - !ruby/regexp /\.msi$/
   - !ruby/regexp /\.o$/
   - !ruby/regexp /^~/
@@ -21,9 +25,15 @@ ignorefiles:
   - pagefile.sys
   - application data
   - system volume information
+  - start menu
   - temp
   - ntldr
+  - msocache
   - program files
+  - recycler
+  - ruby-1.9.1
+  - openssl
+  - drivers
   - virtuald
 ignoredirpatterns:
   - !ruby/regexp /^c:\/windows/
