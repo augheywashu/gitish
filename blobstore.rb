@@ -23,7 +23,13 @@ class BlobStore
   end
 
   def has_sha?(sha, skip_cache)
-    @blobs.has_key?(sha)
+    sha = [sha] unless sha.is_a?(Array)
+    for s in sha
+      unless @blobs.has_key?(s)
+        return false
+      end
+    end
+    return true
   end
 
   def write_commit(sha,message)

@@ -66,9 +66,11 @@ class Archive
 
   def write_directory(path,info)
     STDERR.puts "Writing directory #{path}"
+    shas = []
     info.each_sha do |sha|
-      verify_sha!(sha)
+      shas << sha
     end
+    verify_sha!(shas)
     @blobstore.write(info.to_yaml,nil)
   end
 
@@ -81,12 +83,6 @@ class Archive
 
   def verify_sha!(sha)
     raise "Could not find #{sha} in blobstore" unless @blobstore.has_sha?(sha, :bypass_cache)
-  end
-
-  def verify_shas!(shas)
-    for sha in shas
-      verify_sha!(sha)
-    end
   end
 
 end
