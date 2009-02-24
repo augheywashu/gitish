@@ -1,0 +1,27 @@
+storedir: store-local
+cachefile: cache-local.db
+crypt_key: abcdefg
+ignorepatterns:
+  - !ruby/regexp /\.exe$/
+  - !ruby/regexp /\.com$/
+  - !ruby/regexp /\.dll$/
+  - !ruby/regexp /\.tmp$/
+  - !ruby/regexp /\.iso$/
+  - !ruby/regexp /\.wav$/
+  - !ruby/regexp /\.so$/
+  - !ruby/regexp /\.sys$/
+  - !ruby/regexp /\.o$/
+  - !ruby/regexp /^~/
+  - !ruby/regexp /^\$/
+  - !ruby/regexp /^ntuser.*/
+ignorefiles:
+  - thumbs.db
+  - pagefile.sys
+  - application data
+  - system volume information
+  - temp
+  - ntldr
+  - program files
+  - virtuald
+ignoredirpatterns:
+  - !ruby/regexp /^c:\/windows/
