@@ -14,12 +14,11 @@ class LocalSHACache < WriteChain
     returnedsha
   end
 
-  def has_sha?(sha, skip_cache)
+  def has_shas?(shas, skip_cache)
     if skip_cache 
       super
     else
-      sha = [sha] unless sha.is_a?(Array)
-      for s in sha
+      for s in shas
         unless @cache.has_key?(s)
           return super
         end

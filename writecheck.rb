@@ -19,7 +19,7 @@ class WriteCheck < WriteChain
   def write(data,sha)
     @numwrites += 1
     @datasize += data.size
-    if @child.has_sha?(sha,false)
+    if @child.has_shas?([sha],false)
       return sha
     else
       @numpassed += 1

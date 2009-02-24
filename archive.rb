@@ -54,7 +54,7 @@ class Archive
   end
 
   def read_sha(sha)
-    verify_sha!(sha)
+    verify_shas!([sha])
     res = @blobstore.read_sha(sha)
     @readsize += res.size
     res
@@ -70,7 +70,7 @@ class Archive
     info.each_sha do |sha|
       shas << sha
     end
-    verify_sha!(shas)
+    verify_shas!(shas)
     @blobstore.write(info.to_yaml,nil)
   end
 
@@ -81,8 +81,8 @@ class Archive
 
   protected
 
-  def verify_sha!(sha)
-    raise "Could not find #{sha} in blobstore" unless @blobstore.has_sha?(sha, :bypass_cache)
+  def verify_shas!(shas)
+    raise "Could not find #{sha} in blobstore" unless @blobstore.has_shas?(shas, :bypass_cache)
   end
 
 end

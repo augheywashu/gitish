@@ -24,9 +24,8 @@ class BlobStoreLocal
     @stderr.close
   end
 
-  def has_sha?(sha, skip_cache)
-    sha = sha.join(',') if sha.is_a?(Array)
-    puts "sha? #{sha}"
+  def has_shas?(shas, skip_cache)
+    puts "sha? #{shas.join(',')}"
     res = readline.chomp.to_i
     return res == 1
   end

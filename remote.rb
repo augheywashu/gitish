@@ -25,14 +25,11 @@ begin
     command = STDIN.readline.chomp
     log.puts "got #{command}"
     if command=~/sha\? (.*)/
-      ret = "1"
-      for sha in $1.split(',')
-        if !store.has_sha?(sha,false)
-          ret = "0"
-          last
-        end
+      if store.has_shas?($1.split(','),true)
+        puts "1"
+      else
+        puts "0"
       end
-      puts ret
     elsif command=~/readsha (\w+)/
       data = store.read_sha($1)
       puts data.size

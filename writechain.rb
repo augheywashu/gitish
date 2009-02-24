@@ -62,8 +62,8 @@ class WriteChain
     @child.close
   end
 
-  def has_sha?(sha, skip_cache)
-    @child.has_sha?(sha, skip_cache)
+  def has_shas?(shas, skip_cache)
+    @child.has_shas?(shas, skip_cache)
   end
 
   def write_commit(sha,message)

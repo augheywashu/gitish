@@ -22,9 +22,8 @@ class BlobStore
     @store.close
   end
 
-  def has_sha?(sha, skip_cache)
-    sha = [sha] unless sha.is_a?(Array)
-    for s in sha
+  def has_shas?(shas, skip_cache)
+    for s in shas
       unless @blobs.has_key?(s)
         return false
       end
@@ -33,7 +32,7 @@ class BlobStore
   end
 
   def write_commit(sha,message)
-    verify_sha!(sha)
+    verify_shas!([sha])
     File.open(File.join(@storedir,"commits"),'a+') do |f|
       f.puts "#{sha} - #{message}"
     end
@@ -57,8 +56,8 @@ class BlobStore
 
   protected
 
-  def verify_sha!(sha)
-    raise "Could not find #{sha} in blobstore" unless self.has_sha?(sha,:bypass_cache)
+  def verify_shas!(shas)
+    raise "Could not find #{sha} in blobstore" unless self.has_shas?(shas,:bypass_cache)
   end
 end
 
