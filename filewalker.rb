@@ -6,6 +6,23 @@ class FileWalker
       @onlypatterns = options['onlypatterns']
     end
 
+    @ignorefiles = options['ignorefiles'] ||
+      ['.git','.svn','a.out','thumbs.db']
+
+    @ignorepatterns = options['ignorepatterns'] ||
+      [/^~/,/^\./,/\.o$/,/\.so$/,/\.a$/,
+      #/\.exe$/,
+      #/\.mp3/,
+      /\.wav$/,
+      #/\.wma$/,
+      #/\.avi$/,
+      #/\.m4a$/,
+      #/\.m4v$/,
+      #/\.tif$/,
+      /\.iso$/,
+      #/\.mpg$/,
+      /\.tmp$/]
+
     @lookcount = 0
     @looksize = 0
     @skippeddirs = 0
@@ -23,20 +40,6 @@ class FileWalker
 
   def walk_directory(path,handler)
     handler.begin_directory(path)
-
-    ignorefiles = ['.git','.svn','a.out','0ld computers backed-up files here!','thumbs.db']
-    ignorepatterns = [/^~/,/^\./,/\.o$/,/\.so$/,/\.a$/,
-      #/\.exe$/,
-      #/\.mp3/,
-      /\.wav$/,
-      #/\.wma$/,
-      #/\.avi$/,
-      #/\.m4a$/,
-      #/\.m4v$/,
-      #/\.tif$/,
-      /\.iso$/,
-      #/\.mpg$/,
-      /\.tmp$/]
 
     begin
       files_to_process = []
@@ -58,14 +61,14 @@ class FileWalker
         # Should we try following symlinks to dirs?
         next unless stat.file? or stat.directory?
 
-        if ignorefiles.include?(downcase_e)
+        if @ignorefiles.include?(downcase_e)
           skipfile(fullpath,stat)
           next
         end
 
         # Check the ignore patterns even before going into directories
         skip = false
-        for p in ignorepatterns
+        for p in @ignorepatterns
           if p.match(downcase_e)
             skip = true
             skipfile(fullpath,stat)
