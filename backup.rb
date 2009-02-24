@@ -10,6 +10,7 @@ CommandLine.create(ARGV) do |archive,path,options|
   archive.write_commit(sha,path + " - " + Time.now.to_s)
   puts sha
 
+  STDERR.puts walker.stats.join("\n")
   handler.close
 end
 
