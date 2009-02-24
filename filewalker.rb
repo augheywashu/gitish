@@ -46,8 +46,9 @@ class FileWalker
   end
 
   def walk_directory(path,handler)
+    downcasepath = path.downcase
     for p in @ignoredirpatterns
-      if p.match(path)
+      if p.match(downcasepath)
         return nil
       end
     end
