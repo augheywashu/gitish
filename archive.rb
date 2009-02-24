@@ -47,7 +47,7 @@ class Archive
       STDERR.puts "File #{path} has a funny character (haha), could not open."
       return nil
     rescue Errno::EACCES
-      STDERR.puts "Could not access #{path}.  #{e}.  Not backed up."
+      STDERR.puts "Could not access #{path}.  Not backed up."
       return nil
     end
     shas
