@@ -66,11 +66,7 @@ class Archive
 
   def write_directory(path,info)
     STDERR.puts "Writing directory #{path}"
-    shas = []
-    info.each_sha do |sha|
-      shas << sha
-    end
-    verify_shas!(shas)
+    verify_shas!(info.all_shas)
     @blobstore.write(info.to_yaml,nil)
   end
 

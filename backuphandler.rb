@@ -117,15 +117,15 @@ class BackupHandler < Handler
   end
 
   module CacheHelperMethods
-    def each_sha
+    def all_shas
+      shas = []
       for f,info in self[:files]
-        for sha in info[:shas]
-          yield sha
-        end
+        shas += info[:shas]
       end
       for f,info in self[:dirs]
-        yield info[:sha]
+        shas << info[:sha]
       end
+      shas
     end
 
     def empty?
