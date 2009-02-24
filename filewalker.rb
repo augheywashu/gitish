@@ -24,26 +24,34 @@ class FileWalker
   def walk_directory(path,handler)
     handler.begin_directory(path)
 
-    ignorefiles = ['.','..','.git','.svn','a.out','0ld computers backed-up files here!','thumbs.db']
-    ignorepatterns = [/^~/,/^\./,/\.o$/,/\.so$/,/\.a$/,/\.exe$/,/\.mp3/,
+    ignorefiles = ['.git','.svn','a.out','0ld computers backed-up files here!','thumbs.db']
+    ignorepatterns = [/^~/,/^\./,/\.o$/,/\.so$/,/\.a$/,
+      #/\.exe$/,
+      #/\.mp3/,
       /\.wav$/,
-      /\.wma$/,
-      /\.avi$/,
-      /\.m4a$/,
-      /\.m4v$/,
-      /\.tif$/,
+      #/\.wma$/,
+      #/\.avi$/,
+      #/\.m4a$/,
+      #/\.m4v$/,
+      #/\.tif$/,
       /\.iso$/,
-      /\.tmp$/,
-      /\.mpg$/]
+      #/\.mpg$/,
+      /\.tmp$/]
 
     begin
       files_to_process = []
 
       for e in Dir.entries(path).sort
+        next if e == '.' or e == '..'
         downcase_e = e.downcase
 
         fullpath = File.join(path,e)
-        stat = File.stat(fullpath)
+        begin
+          stat = File.stat(fullpath)
+        rescue
+          STDERR.puts "FileWalker: Could not stat #{fullpath}, skipping"
+          next
+        end
 
         # Only do files or directories
         # Should we try following symlinks to files?
@@ -51,7 +59,7 @@ class FileWalker
         next unless stat.file? or stat.directory?
 
         if ignorefiles.include?(downcase_e)
-          skipfile(stat)
+          skipfile(fullpath,stat)
           next
         end
 
@@ -60,7 +68,7 @@ class FileWalker
         for p in ignorepatterns
           if p.match(downcase_e)
             skip = true
-            skipfile(stat)
+            skipfile(fullpath,stat)
             break
           end
         end
@@ -84,7 +92,7 @@ class FileWalker
           end
 
           if skip
-            skipfile(stat)
+            skipfile(fullpath,stat)
             next
           end
 
@@ -126,7 +134,7 @@ class FileWalker
 
   protected
 
-  def skipfile(stat)
+  def skipfile(fullpath,stat)
     if stat.directory?
       @skippeddirs += 1
     else
