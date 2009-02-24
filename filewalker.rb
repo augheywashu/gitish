@@ -10,18 +10,22 @@ class FileWalker
       ['.git','.svn','a.out','thumbs.db']
 
     @ignorepatterns = options['ignorepatterns'] ||
-      [/^~/,/^\./,/\.o$/,/\.so$/,/\.a$/,
-      #/\.exe$/,
-      #/\.mp3/,
-      /\.wav$/,
-      #/\.wma$/,
-      #/\.avi$/,
-      #/\.m4a$/,
-      #/\.m4v$/,
-      #/\.tif$/,
-      /\.iso$/,
-      #/\.mpg$/,
-      /\.tmp$/]
+      [/^~/,
+        /^\./,
+        /\.o$/,
+        /\.so$/,
+        /\.a$/,
+        /\.wav$/,
+        /\.iso$/,
+        /\.tmp$/]
+    #/\.exe$/,
+    #/\.mp3/,
+    #/\.wma$/,
+    #/\.avi$/,
+    #/\.m4a$/,
+    #/\.m4v$/,
+    #/\.tif$/,
+    #/\.mpg$/,
 
     @lookcount = 0
     @looksize = 0
