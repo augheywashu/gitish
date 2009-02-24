@@ -10,12 +10,14 @@ ignorepatterns:
   - !ruby/regexp /\.wav$/
   - !ruby/regexp /\.so$/
   - !ruby/regexp /\.sys$/
+  - !ruby/regexp /\.msi$/
   - !ruby/regexp /\.o$/
   - !ruby/regexp /^~/
   - !ruby/regexp /^\$/
   - !ruby/regexp /^ntuser.*/
 ignorefiles:
   - thumbs.db
+  - temporary internet files
   - pagefile.sys
   - application data
   - system volume information
