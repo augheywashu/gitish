@@ -31,20 +31,23 @@ class Archive
     chunk = 0
     chunkmod = numchunks / 4
     begin
-    File.open(path,'r') do |f|
-      until f.eof?
-        data = f.read(CHUNKSIZE)
-        if numchunks > 4 and chunk % chunkmod == 0
-          STDERR.puts "Writing chunk #{chunk+1} of #{numchunks}"
+      File.open(path,'r') do |f|
+        until f.eof?
+          data = f.read(CHUNKSIZE)
+          if numchunks > 4 and chunk % chunkmod == 0
+            STDERR.puts "Writing chunk #{chunk+1} of #{numchunks}"
+          end
+          @datasize += data.size
+          sha = @blobstore.write(data,nil)
+          shas << sha
+          chunk += 1
         end
-        @datasize += data.size
-        sha = @blobstore.write(data,nil)
-        shas << sha
-        chunk += 1
       end
-    end
+    rescue Errno::ENOENT
+      STDERR.puts "File #{path} has a funny character (haha), could not open."
+      return nil
     rescue Errno::EACCES
-      STDERR.puts "Could not access #{path}.  Not backed up."
+      STDERR.puts "Could not access #{path}.  #{e}.  Not backed up."
       return nil
     end
     shas
