@@ -48,7 +48,14 @@ class FileWalker
     begin
       files_to_process = []
 
-      for e in Dir.entries(path).sort
+      begin
+        allentries = Dir.entries(path).sort
+      rescue Exception => e
+        STDERR.puts "FileWalker: Could not open directory #{path}.  Skipping"
+        return nil
+      end
+
+      for e in allentries
         next if e == '.' or e == '..'
         downcase_e = e.downcase
 
