@@ -23,7 +23,7 @@ class Archive
 
   def write_file(path,stat)
     size = stat.size
-    STDERR.puts "Writing file #{path} (#{size} bytes)"
+    STDERR.puts "Writing file #{path} (#{size.commaize} bytes)"
 
     numchunks = (size / CHUNKSIZE).ceil
 
