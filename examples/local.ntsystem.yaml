@@ -2,20 +2,51 @@ storedir: store-local
 cachefile: cache-local.db
 crypt_key: abcdefg
 ignorepatterns:
+# Audio files
+  - !ruby/regexp /\.wav$/
+  - !ruby/regexp /\.mp3$/
+  - !ruby/regexp /\.m4a$/
+# Video Files
+  - !ruby/regexp /\.mp4$/
+  - !ruby/regexp /\.wmv$/
+  - !ruby/regexp /\.m4v$/
+  - !ruby/regexp /\.mpg$/
+  - !ruby/regexp /\.avi$/
+# Images
+  - !ruby/regexp /\.jpg$/
+  - !ruby/regexp /\.png$/
+  - !ruby/regexp /\.gif$/
+  - !ruby/regexp /\.bmp$/
+# Executable
   - !ruby/regexp /\.exe$/
   - !ruby/regexp /\.com$/
   - !ruby/regexp /\.dll$/
-  - !ruby/regexp /\.tmp$/
-  - !ruby/regexp /\.iso$/
   - !ruby/regexp /\.lib$/
-  - !ruby/regexp /\.wav$/
-  - !ruby/regexp /\.ini$/
   - !ruby/regexp /\.cab$/
+  - !ruby/regexp /\.msi$/
+# CD Images
+  - !ruby/regexp /\.iso$/
+# iTunes
+  - !ruby/regexp /\.itl$/
+  - !ruby/regexp /\.itdb$/
+  - !ruby/regexp /\.ipa$/
+# Reaper
+  - !ruby/regexp /\.reapeaks$/
+  - !ruby/regexp /\.reapindex$/
+# Just plain junk
+  - !ruby/regexp /\.pdb$/
+  - !ruby/regexp /\.vxd$/
+  - !ruby/regexp /\.inv$/
+  - !ruby/regexp /\.mst$/
+  - !ruby/regexp /\.zip$/
   - !ruby/regexp /\.lnk$/
+  - !ruby/regexp /\.tmp$/
+  - !ruby/regexp /\.bin$/
   - !ruby/regexp /\.so$/
   - !ruby/regexp /\.sys$/
+  - !ruby/regexp /\.ini$/
+  - !ruby/regexp /\.widget$/
   - !ruby/regexp /_$/
-  - !ruby/regexp /\.msi$/
   - !ruby/regexp /\.o$/
   - !ruby/regexp /^~/
   - !ruby/regexp /^\./
@@ -39,6 +70,7 @@ ignorefiles:
   - drivers
   - virtuald
   - cache
+  - temp file
 ignoredirpatterns:
   - !ruby/regexp /^c:\/windows/
   - !ruby/regexp /local settings\/history/
