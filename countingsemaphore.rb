@@ -1,3 +1,4 @@
+require 'thread'
 #
 # $Id: semaphore.rb,v 1.2 2003/03/15 20:10:10 fukumoto Exp $
 #
@@ -7,27 +8,30 @@ class CountingSemaphore
   def initialize(initvalue = 0)
     @counter = initvalue
     @waiting_list = []
+    @lock = Mutex.new
   end
 
   def wait(max = nil)
-    Thread.critical = true
+    @lock.lock
     if (@counter -= 1) < 0
       @waiting_list.push(Thread.current)
       if max && @waiting_list.size == max
         (@waiting_list.size-1).times do
           self.signal
         end
+        @lock.unlock
         return nil
       end
+      @lock.unlock
       Thread.stop
+    else
+      @lock.unlock
     end
     self
-  ensure
-    Thread.critical = false
   end
 
   def signal
-    Thread.critical = true
+    @lock.lock
     begin
       if (@counter += 1) <= 0
         t = @waiting_list.shift
@@ -38,7 +42,7 @@ class CountingSemaphore
     end
     self
   ensure
-    Thread.critical = false
+    @lock.unlock
   end
 
   alias down wait
