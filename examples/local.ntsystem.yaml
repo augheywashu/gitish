@@ -33,8 +33,11 @@ ignorepatterns:
 # Reaper
   - !ruby/regexp /\.reapeaks$/
   - !ruby/regexp /\.reapindex$/
-# Just plain junk
+# X-Plane
   - !ruby/regexp /\.dsf$/
+  - !ruby/regexp /\.dds$/
+  - !ruby/regexp /\.acf$/
+# Just plain junk
   - !ruby/regexp /\.pdb$/
   - !ruby/regexp /\.vxd$/
   - !ruby/regexp /\.inv$/
