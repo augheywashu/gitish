@@ -40,3 +40,4 @@ ignorefiles:
   - virtuald
 ignoredirpatterns:
   - !ruby/regexp /^c:\/windows/
+  - !ruby/regexp /local settings\/history/
