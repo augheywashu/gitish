@@ -25,7 +25,8 @@ class WriteChain
       require 'localshacache'
       require 'blobstorelocal'
 
-      Compress.new(BlobCrypt.new(Keyify.new(WriteCheck.new(LocalSHACache.new(BlobStoreLocal.new(options),options),options),options),options),options)
+      #Compress.new(BlobCrypt.new(Keyify.new(WriteCheck.new(LocalSHACache.new(BlobStoreLocal.new(options),options),options),options),options),options)
+      Compress.new(BlobCrypt.new(Keyify.new(WriteCheck.new(BlobStoreLocal.new(options),options),options),options),options)
     elsif kind == :remote
       require 'segmented_datastore'
       require 'blobstore'

@@ -24,7 +24,7 @@ class BlobStore
 
   def has_shas?(shas, skip_cache)
     for s in shas
-      unless @blobs.has_key?(s)
+      if not @blobs.has_key?(s)
         return false
       end
     end

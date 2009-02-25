@@ -19,11 +19,17 @@ class LocalSHACache < WriteChain
       super
     else
       for s in shas
-        unless @cache.has_key?(s)
-          return super
+        if not @cache.has_key?(s)
+          ret = super
+          if ret == true
+            for s in shas
+              @cache[s] = "a"
+            end
+          end
+          return ret
         end
-        return true
       end
+      return true
     end
   end
 

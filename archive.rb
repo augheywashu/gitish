@@ -2,6 +2,12 @@ require 'digest/sha1'
 require 'yaml'
 
 class Archive
+  class ShaNotFound < Exception
+    def initialize(info)
+      super(info)
+    end
+  end
+
   CHUNKSIZE=1048576.0
 
   def initialize(blobstore)
@@ -66,7 +72,12 @@ class Archive
 
   def write_directory(path,info)
     STDERR.puts "Writing directory #{path}"
-    verify_shas!(info.all_shas)
+    begin
+      verify_shas!(info.all_shas)
+    rescue ShaNotFound
+      STDERR.puts info.inspect
+      raise
+    end
     @blobstore.write(info.to_yaml,nil)
   end
 
@@ -78,7 +89,18 @@ class Archive
   protected
 
   def verify_shas!(shas)
-    raise "Could not find #{sha} in blobstore" unless @blobstore.has_shas?(shas, :bypass_cache)
+    unless @blobstore.has_shas?(shas, :bypass_cache)
+      STDERR.puts "sha in a list missing, looking for missed sha"
+      for s in shas
+        if @blobstore.has_shas?([s], :bypass_cache)
+          STDERR.puts "#{s} is ok"
+        else
+          STDERR.puts "Could not find sha #{s}"
+        end
+      end
+
+      raise ShaNotFound.new("Could not find #{shas.join(',')} in blobstore")
+    end
   end
 
 end

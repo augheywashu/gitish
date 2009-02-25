@@ -25,7 +25,8 @@ begin
     command = STDIN.readline.chomp
     log.puts "got #{command}"
     if command=~/sha\? (.*)/
-      if store.has_shas?($1.split(','),true)
+      shas = $1.split(',')
+      if store.has_shas?(shas,true)
         puts "1"
       else
         puts "0"

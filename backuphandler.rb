@@ -72,7 +72,17 @@ class BackupHandler < Handler
     @cache.delete(:sha)
 
     if @thisinfo != @cache
-      sha = @archive.write_directory(path,@thisinfo)
+      begin
+        sha = @archive.write_directory(path,@thisinfo)
+      rescue Archive::ShaNotFound
+        puts "Removing #{path} from the cachedb because of the exception"
+        for d,info in @thisinfo[:dirs]
+          recurse_delete(File.join(path,d))
+        end
+        recurse_delete(path)
+        raise
+      end
+
       @thisinfo[:sha] = sha
       save_info(path,@thisinfo)
     else
@@ -105,6 +115,16 @@ class BackupHandler < Handler
 
 
   protected
+
+  def recurse_delete(path)
+    STDERR.puts "BackupHandler: removing #{path} from the cache"
+    info = cache_for(path)
+    return if info.nil?
+    for dir,info in info[:dirs]
+      recurse_delete(File.join(path,dir))
+    end
+    @cachedb.delete(path)
+  end
 
   def push
     @cachestack.push(@cache)
