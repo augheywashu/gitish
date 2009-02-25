@@ -60,8 +60,6 @@ class BackupHandler < Handler
   end
 
   def end_directory(path)
-    # Make sure the archive is synced
-    @archive.sync
 
     # If this directory is empty, don't bother storing it.
     # The cache will be deleted by its parent.
@@ -76,6 +74,8 @@ class BackupHandler < Handler
 
     if @thisinfo != @cache
       begin
+        # Make sure the archive is synced
+        @archive.sync
         sha = @archive.write_directory(path,@thisinfo)
       rescue Archive::ShaNotFound
         puts "Removing #{path} from the cachedb because of the exception"
