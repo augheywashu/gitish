@@ -53,6 +53,7 @@ class Archive
           chunk += 1
         end
       end
+      filesha = @blobstore.write(shas.join("\n"),nil)
     rescue Errno::ENOENT
       STDERR.puts "File #{path} has a funny character (haha), could not open."
       return nil
@@ -60,7 +61,7 @@ class Archive
       STDERR.puts "Could not access #{path}.  Not backed up."
       return nil
     end
-    shas
+    filesha
   end
 
   def read_sha(sha)

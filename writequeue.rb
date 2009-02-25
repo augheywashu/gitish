@@ -5,7 +5,7 @@ require 'thread'
 class WriteQueue < WriteChain
   def initialize(child,options)
     super
-    @writesem = CountingSemaphore.new(100)
+    @writesem = CountingSemaphore.new(20)
     @readsem = CountingSemaphore.new(0)
     @syncsignal = CountingSemaphore.new(0)
     @queuelock = Mutex.new
@@ -50,11 +50,11 @@ class WriteQueue < WriteChain
     if not empty
       STDERR.puts "WriteQueue: waiting for write thread to finish"
       @syncsignal.wait
+      STDERR.puts "WriteQueue: done waiting"
     end
     @childlock.lock
     @child.sync
     @childlock.unlock
-    STDERR.puts "WriteQueue: sunk"
   end
 
   def read_sha(sha)

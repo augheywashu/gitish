@@ -51,12 +51,12 @@ class BackupHandler < Handler
   end
 
   def process_file(e,fullpath,stat)
-    shas = @cache.file_shas_for(e,stat)
-    if shas.nil?
-      shas = @archive.write_file(fullpath,stat)
+    sha = @cache.file_sha_for(e,stat)
+    if sha.nil?
+      sha = @archive.write_file(fullpath,stat)
     end
 
-    @thisinfo.add_file(e,shas,stat) if shas
+    @thisinfo.add_file(e,sha,stat) if sha
   end
 
   def end_directory(path)
@@ -109,13 +109,14 @@ class BackupHandler < Handler
       fullpath = File.join(path,filename)
       STDERR.puts "Restoring file #{fullpath}"
       File.open(fullpath,"w") do |f|
-        for sha in info[:shas]
+        filesha = info[:sha]
+        # Now the sha is really a pointer to more shas
+        for sha in archive.read_sha(filesha).split("\n")
           f.write(archive.read_sha(sha))
         end
       end
     end
   end
-
 
   protected
 
@@ -143,7 +144,7 @@ class BackupHandler < Handler
     def all_shas
       shas = []
       for f,info in self[:files]
-        shas += info[:shas]
+        shas << info[:sha]
       end
       for f,info in self[:dirs]
         shas << info[:sha]
@@ -159,18 +160,18 @@ class BackupHandler < Handler
       self[:dirs][name] = { :sha => sha, :stat => stat.to_hash(nil,nil) }
     end
 
-    def add_file(name, shas, stat)
-      self[:files][name] = { :shas => shas, :stat => stat.to_hash }
+    def add_file(name, sha, stat)
+      self[:files][name] = { :sha => sha, :stat => stat.to_hash }
     end
 
-    def file_shas_for(file,stat)
+    def file_sha_for(file,stat)
       info = self[:files][file]
 
       return nil if info.nil?
 
       s = info[:stat]
       if s[:mtime] == stat.mtime.to_i and s[:ctime] == stat.ctime.to_i
-        return info[:shas]
+        return info[:sha]
       else
         return nil
       end
