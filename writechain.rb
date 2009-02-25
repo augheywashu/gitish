@@ -23,7 +23,6 @@ class WriteChain
       require 'writequeue'
 
       Compress.new(BlobCrypt.new(Keyify.new(WriteCheck.new(LocalSHACache.new(WriteQueue.new(BlobStoreLocal.new(options),options),options),options),options),options),options)
-#      Compress.new(BlobCrypt.new(Keyify.new(WriteCheck.new(LocalSHACache.new(BlobStoreLocal.new(options),options),options),options),options),options)
     elsif kind == :remote
       require 'segmented_datastore'
       require 'blobstore'
@@ -36,7 +35,7 @@ class WriteChain
       require 'writecheck'
       require 'localshacache'
 
-      Compress.new(BlobCrypt.new(Keyify.new(WriteCheck.new(create(:remote,options),options),options),options),options)
+      Compress.new(BlobCrypt.new(Keyify.new(WriteCheck.new(WriteQueue.new(create(:remote,options),options),options),options),options),options)
     else
       raise "Do not know how to create WriteChain #{kind}"
     end
