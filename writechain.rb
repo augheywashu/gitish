@@ -34,6 +34,7 @@ class WriteChain
       require 'compress'
       require 'writecheck'
       require 'localshacache'
+      require 'writequeue'
 
       Compress.new(BlobCrypt.new(Keyify.new(WriteCheck.new(WriteQueue.new(create(:remote,options),options),options),options),options),options)
     else
