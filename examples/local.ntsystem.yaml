@@ -38,6 +38,7 @@ ignorefiles:
   - openssl
   - drivers
   - virtuald
+  - cache
 ignoredirpatterns:
   - !ruby/regexp /^c:\/windows/
   - !ruby/regexp /local settings\/history/
