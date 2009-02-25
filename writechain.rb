@@ -12,10 +12,6 @@ class WriteChain
     @child = child
   end
 
-  def stats
-    @child.stats
-  end
-
   def self.create(kind,options)
     if kind == :network
       require 'blobcrypt'
@@ -24,9 +20,10 @@ class WriteChain
       require 'writecheck'
       require 'localshacache'
       require 'blobstorelocal'
+      require 'writequeue'
 
-      Compress.new(BlobCrypt.new(Keyify.new(WriteCheck.new(LocalSHACache.new(BlobStoreLocal.new(options),options),options),options),options),options)
-      #Compress.new(BlobCrypt.new(Keyify.new(WriteCheck.new(BlobStoreLocal.new(options),options),options),options),options)
+      Compress.new(BlobCrypt.new(Keyify.new(WriteCheck.new(LocalSHACache.new(WriteQueue.new(BlobStoreLocal.new(options),options),options),options),options),options),options)
+#      Compress.new(BlobCrypt.new(Keyify.new(WriteCheck.new(LocalSHACache.new(BlobStoreLocal.new(options),options),options),options),options),options)
     elsif kind == :remote
       require 'segmented_datastore'
       require 'blobstore'
@@ -50,7 +47,7 @@ class WriteChain
     @child.read_sha(sha)
   end
 
-  def write(data,sha=nil)
+  def write(data,sha)
     ret = @child.write(data,sha)
     if sha
       raise "WriteChain: child didn't return the same sha given.  #{sha} != #{ret}" if sha != ret
@@ -58,6 +55,13 @@ class WriteChain
     ret
   end
 
+  def stats
+    @child.stats
+  end
+
+  def sync
+    @child.sync
+  end
 
   def close
     @child.close

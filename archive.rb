@@ -27,6 +27,10 @@ class Archive
     @blobstore.close
   end
 
+  def sync
+    @blobstore.sync
+  end
+
   def write_file(path,stat)
     size = stat.size
     STDERR.puts "Writing file #{path} (#{size.commaize} bytes)"

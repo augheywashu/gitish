@@ -4,6 +4,10 @@ class DataStore
     @file.seek(0,IO::SEEK_END)
   end
 
+  def sync
+    @file.fsync
+  end
+
   def close
     @file.close
   end

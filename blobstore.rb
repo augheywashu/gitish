@@ -17,6 +17,12 @@ class BlobStore
     ["BlobStore: wrote #{@datasize.commaize} bytes to the store"]
   end
 
+  def sync
+    @flatdb.fsync
+    @blobs.sync
+    @store.sync
+  end
+
   def close
     @blobs.close
     @store.close

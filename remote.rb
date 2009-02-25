@@ -41,6 +41,9 @@ begin
     elsif command=~/write (\w+) (\d+)/
       data = STDIN.read($2.to_i)
       puts store.write(data,$1)
+    elsif command == 'sync'
+      store.sync
+      puts "1"
     else
       raise "unknown command received #{command}"
     end

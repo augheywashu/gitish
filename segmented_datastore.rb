@@ -8,6 +8,10 @@ class SegmentedDataStore
     @openindex = -1
   end
 
+  def sync
+    @store.sync if @store
+  end
+
   def close
     @store.close if @store
     @store = nil

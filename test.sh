@@ -4,7 +4,7 @@
 
 export LOG_IO=1
 
-rm -rf log store-test/* store/* cache-test.db shacache-test.db restore/*
+rm -rf log store-test/* store-remote/* store/* cache-test.db shacache-test.db restore/*
 
 method=network
 

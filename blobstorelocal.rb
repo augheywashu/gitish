@@ -30,6 +30,11 @@ class BlobStoreLocal
     return res == 1
   end
 
+  def sync
+    puts "sync"
+    readline
+  end
+
   def read_sha(sha)
     puts "readsha #{sha}"
     size = readline.chomp.to_i

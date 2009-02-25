@@ -60,6 +60,9 @@ class BackupHandler < Handler
   end
 
   def end_directory(path)
+    # Make sure the archive is synced
+    @archive.sync
+
     # If this directory is empty, don't bother storing it.
     # The cache will be deleted by its parent.
     if @thisinfo.empty?
