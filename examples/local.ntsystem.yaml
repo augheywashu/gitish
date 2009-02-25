@@ -29,6 +29,7 @@ ignorefiles:
   - system volume information
   - start menu
   - temp
+  - cookies
   - ntldr
   - msocache
   - program files
