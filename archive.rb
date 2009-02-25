@@ -53,7 +53,11 @@ class Archive
           chunk += 1
         end
       end
-      filesha = @blobstore.write(shas.join("\n"),nil)
+      if shas.size == 1
+        return shas.first
+      else
+        return "*" + @blobstore.write(shas.join("\n"),nil)
+      end
     rescue Errno::ENOENT
       STDERR.puts "File #{path} has a funny character (haha), could not open."
       return nil
@@ -86,6 +90,14 @@ class Archive
     @blobstore.write(info.to_yaml,nil)
   end
 
+  def dereferenced_fileshas(sha)
+    if sha[0,1] == '*'
+      read_sha(sha[1,sha.size]).split("\n")
+    else
+      [sha]
+    end
+  end
+
   def write_commit(sha,message)
     STDERR.puts "Writing commit #{sha} - #{message}"
     @blobstore.write_commit(sha,message)
@@ -94,6 +106,8 @@ class Archive
   protected
 
   def verify_shas!(shas)
+    # Strip the * off any shas that begin with one
+    shas = shas.map{|s| s[0,1] == '*' ? s[1,s.size] : s}
     unless @blobstore.has_shas?(shas, :bypass_cache)
       STDERR.puts "sha in a list missing, looking for missed sha"
       for s in shas

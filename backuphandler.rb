@@ -111,7 +111,7 @@ class BackupHandler < Handler
       File.open(fullpath,"w") do |f|
         filesha = info[:sha]
         # Now the sha is really a pointer to more shas
-        for sha in archive.read_sha(filesha).split("\n")
+        for sha in archive.dereferenced_fileshas(filesha)
           f.write(archive.read_sha(sha))
         end
       end
