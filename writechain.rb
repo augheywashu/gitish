@@ -14,7 +14,7 @@ class WriteChain
 
   def self.create(kind,options)
     if kind == :network
-      require 'blobcrypt'
+      require 'crypt'
       require 'keyify'
       require 'compress'
       require 'writecheck'
@@ -29,7 +29,7 @@ class WriteChain
       require 'datastore'
       BlobStore.new(SegmentedDataStore.new(DataStore,options),options)
     elsif kind == :local
-      require 'blobcrypt'
+      require 'crypt'
       require 'keyify'
       require 'compress'
       require 'writecheck'
