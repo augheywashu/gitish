@@ -60,6 +60,9 @@ class Archive
           chunk += 1
         end
       end
+      if bytesread != stat.size
+        raise ShortRead.new("Expected to read #{stat.size}, actually read #{bytesread}")
+      end
       if shas.size == 1
         return shas.first
       else
@@ -72,10 +75,6 @@ class Archive
       STDERR.puts "Could not access #{path}.  Not backed up."
       return nil
     end
-    if bytesread != stat.size
-      raise ShortRead.new("Expected to read #{stat.size}, actually read #{bytesread}")
-    end
-    filesha
   end
 
   def read_sha(sha)

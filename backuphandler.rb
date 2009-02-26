@@ -177,7 +177,7 @@ class BackupHandler < Handler
       self[:files][name] = info
     end
 
-    def file_info_for(file,stat)
+    def file_info_for(file)
       self[:files][file]
     end
 
