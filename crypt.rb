@@ -22,8 +22,6 @@ class BlobCrypt < WriteChain
   end
 
   def write(data,sha)
-    raise "BlobCrypt: sha should not be defined in write" if sha
-
     c = OpenSSL::Cipher::Cipher.new("aes-256-cbc")
     c.encrypt
     c.key = @key

@@ -1,7 +1,9 @@
 require "open3"
 
 class BlobStoreLocal
-  def initialize(options)
+  def initialize(child,options)
+    raise "BlobStoreLocal: child really must be nil" unless child.nil?
+
     command = options['remote_command'] || raise("BlobStoreLocal: remote_command not defined in options")
     @stdin,@stdout,@stderr = Open3.popen3(command)
 

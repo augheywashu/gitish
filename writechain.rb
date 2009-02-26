@@ -12,6 +12,18 @@ class WriteChain
     @child = child
   end
 
+  def self.create_chain(mods,options)
+    prev = nil
+    for mod in mods.reverse
+      if mod.is_a?(Class)
+        prev = mod.new(prev,options)
+      else
+        prev = mod
+      end
+    end
+    prev
+  end
+
   def self.create(kind,options)
     if kind == :network
       require 'crypt'
@@ -22,7 +34,9 @@ class WriteChain
       require 'blobstorelocal'
       require 'writequeue'
 
-      Compress.new(BlobCrypt.new(Keyify.new(WriteCheck.new(LocalSHACache.new(WriteQueue.new(BlobStoreLocal.new(options),options),options),options),options),options),options)
+#      Compress.new(BlobCrypt.new(Keyify.new(WriteCheck.new(LocalSHACache.new(WriteQueue.new(BlobStoreLocal.new(options),options),options),options),options),options),options)
+
+      create_chain [Keyify,WriteCheck,LocalSHACache,Compress,BlobCrypt,WriteQueue,BlobStoreLocal],options
     elsif kind == :remote
       require 'segmented_datastore'
       require 'blobstore'
@@ -36,7 +50,8 @@ class WriteChain
       require 'localshacache'
       require 'writequeue'
 
-      Compress.new(BlobCrypt.new(Keyify.new(WriteCheck.new(WriteQueue.new(create(:remote,options),options),options),options),options),options)
+      # Compress.new(BlobCrypt.new(Keyify.new(WriteCheck.new(WriteQueue.new(create(:remote,options),options),options),options),options),options)
+      create_chain [Keyify,WriteCheck,WriteQueue,Compress,BlobCrypt,WriteQueue, create(:remote,options)],options
     else
       raise "Do not know how to create WriteChain #{kind}"
     end

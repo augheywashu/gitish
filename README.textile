@@ -112,6 +112,15 @@ a ssh connection or similar communication mechanism (http in work).
 
 h1. Write Chain
 
-Here is the chain I expect to build.
+Here is the chain for local storage.
 
-Archive -> Compress -> Encrypt -> Keyify -> WriteCheck -> STORAGESYSTEM
+Compress -> BlobCrypt -> Keyify -> WriteCheck -> WriteQueue -> BlobStore -> SegmentedDataStore
+
+Needs to be converted to...
+
+Keyify -> WriteCheck -> Compress -> BlobCrypt -> WriteQueue -> BlobStore -> SegmentedDataStore
+
+And for remote writing...
+
+Keyify -> WriteCheck -> LocalSHACache -> WriteQueue -> BlobStoreLocal ~~~~~ remote.rb -> Compress -> BlobCrypt -> BlobStore -> SegmentedDataStore
+

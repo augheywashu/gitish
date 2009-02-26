@@ -1,6 +1,5 @@
 require 'gdbm'
 require 'digest/sha1'
-require 'blobcrypt'
 require 'fileutils'
 
 class BlobStore
