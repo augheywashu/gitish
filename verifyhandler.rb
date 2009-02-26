@@ -49,7 +49,7 @@ class VerifyHandler < Handler
       @lastdir = dir
     end
 
-    dir[:files][filename][:shas] || raise("Could not find file shas for #{fullpath}")
+    @archive.dereferenced_fileshas(dir[:files][filename][:sha]) || raise("Could not find file shas for #{fullpath}")
   end
 
 end
