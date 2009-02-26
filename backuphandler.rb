@@ -53,7 +53,15 @@ class BackupHandler < Handler
   def process_file(e,fullpath,stat)
     sha = @cache.file_sha_for(e,stat)
     if sha.nil?
-      sha = @archive.write_file(fullpath,stat)
+      begin
+        sha = @archive.write_file(fullpath,stat)
+      rescue Archive::ShortRead => e
+        puts "BackupHandler: #{fullpath} was not fully read"
+        puts e.message
+        puts "Using info from previous backup if available."
+        @thisinfo.add_file_from_info(e,@cache.file_info_for(e))
+        return
+      end
     end
 
     @thisinfo.add_file(e,sha,stat) if sha
@@ -162,6 +170,15 @@ class BackupHandler < Handler
 
     def add_file(name, sha, stat)
       self[:files][name] = { :sha => sha, :stat => stat.to_hash }
+    end
+
+    def add_file_from_info(name, info)
+      return if info.nil?
+      self[:files][name] = info
+    end
+
+    def file_info_for(file,stat)
+      self[:files][file]
     end
 
     def file_sha_for(file,stat)

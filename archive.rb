@@ -7,6 +7,11 @@ class Archive
       super(info)
     end
   end
+  class ShortRead < Exception
+    def initialize(info)
+      super(info)
+    end
+  end
 
   CHUNKSIZE=1048576.0
 
@@ -40,10 +45,12 @@ class Archive
     shas = []
     chunk = 0
     chunkmod = numchunks / 4
+    bytesread = 0
     begin
       File.open(path,'r') do |f|
         until f.eof?
           data = f.read(CHUNKSIZE)
+          bytesread += data.size
           if numchunks > 4 and chunk % chunkmod == 0
             STDERR.puts "Writing chunk #{chunk+1} of #{numchunks}"
           end
@@ -64,6 +71,9 @@ class Archive
     rescue Errno::EACCES
       STDERR.puts "Could not access #{path}.  Not backed up."
       return nil
+    end
+    if bytesread != stat.size
+      raise ShortRead.new("Expected to read #{stat.size}, actually read #{bytesread}")
     end
     filesha
   end
