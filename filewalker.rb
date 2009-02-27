@@ -144,18 +144,6 @@ class FileWalker
     handler.end_directory(path)
   end
 
-  def verify_tree(sha,path,&block)
-    STDERR.puts "Verifying directory #{sha}"
-    info = archive.read_directory(sha)
-    for dirname,dirinfo in info[:dirs]
-      verify_tree(dirinfo[:sha],File.join(path,dirname),&block)
-    end
-    for filename,info in info[:files]
-      fullpath = File.join(path,filename)
-      yield fullpath,info[:shas]
-    end
-  end
-
   protected
 
   def skipfile(fullpath,stat)
