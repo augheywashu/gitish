@@ -78,7 +78,7 @@ class Archive
   end
 
   def read_sha(sha)
-    verify_shas!([sha])
+    # verify_shas!([sha])
     res = @blobstore.read_sha(sha)
     @readsize += res.size
     res

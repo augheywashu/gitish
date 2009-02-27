@@ -31,11 +31,11 @@ begin
       else
         puts "0"
       end
-    elsif command=~/readsha (\w+)/
+    elsif command=~/read (\w+)/
       data = store.read_sha($1)
       puts data.size
       STDOUT.write(data)
-    elsif command=~/commit (\w+)(.*)/
+    elsif command=~/commit (\w+) (.*)/
       store.write_commit($1,$2)
       puts "done"
     elsif command=~/write (\w+) (\d+)/

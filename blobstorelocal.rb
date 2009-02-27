@@ -38,7 +38,7 @@ class BlobStoreLocal
   end
 
   def read_sha(sha)
-    puts "readsha #{sha}"
+    puts "read #{sha}"
     size = readline.chomp.to_i
     read(size)
   end

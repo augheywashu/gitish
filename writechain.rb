@@ -25,7 +25,20 @@ class WriteChain
   end
 
   def self.create(kind,options)
-    if kind == :network
+    if kind == :http
+      require 'crypt'
+      require 'keyify'
+      require 'compress'
+      require 'writecheck'
+      require 'localshacache'
+      require 'blobstorelocal'
+      require 'writequeue'
+      require 'httpstore'
+
+      #      Compress.new(BlobCrypt.new(Keyify.new(WriteCheck.new(LocalSHACache.new(WriteQueue.new(BlobStoreLocal.new(options),options),options),options),options),options),options)
+
+      create_chain [Keyify,WriteCheck,LocalSHACache,HTTPStore],options
+    elsif kind == :network
       require 'crypt'
       require 'keyify'
       require 'compress'
@@ -34,7 +47,7 @@ class WriteChain
       require 'blobstorelocal'
       require 'writequeue'
 
-#      Compress.new(BlobCrypt.new(Keyify.new(WriteCheck.new(LocalSHACache.new(WriteQueue.new(BlobStoreLocal.new(options),options),options),options),options),options),options)
+      #      Compress.new(BlobCrypt.new(Keyify.new(WriteCheck.new(LocalSHACache.new(WriteQueue.new(BlobStoreLocal.new(options),options),options),options),options),options),options)
 
       create_chain [Keyify,WriteCheck,LocalSHACache,Compress,BlobCrypt,WriteQueue,BlobStoreLocal],options
     elsif kind == :remote

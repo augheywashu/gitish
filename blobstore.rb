@@ -48,7 +48,7 @@ class BlobStore
   end
 
   def write(data,sha)
-    raise "BlobStore: write should not be asked to write data it already has." if @blobs.has_key?(sha)
+    raise "BlobStore: write should not be asked to write data it already has #{sha}." if @blobs.has_key?(sha)
     @datasize += data.size
     storekey = @store.write(data)
     @blobs[sha] = storekey.to_s

@@ -3,3 +3,5 @@ localshacachefile: shacache-test.db
 crypt_key: jfaiowjioewajg
 remote_command: ruby remote.rb
 storedir: store-test
+http_host: 127.0.0.1
+http_port: 4567
