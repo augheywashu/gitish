@@ -70,8 +70,8 @@ ignorefiles:
   - system volume information
   - start menu
   - temp
-  - Debug
-  - Release
+  - debug
+  - release
   - cookies
   - x-plane 9 demo
   - ntldr
