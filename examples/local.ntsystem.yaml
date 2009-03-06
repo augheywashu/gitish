@@ -42,6 +42,7 @@ ignorepatterns:
   - !ruby/regexp /\.pdb$/
   - !ruby/regexp /\.idb$/
   - !ruby/regexp /\.ilk$/
+  - !ruby/regexp /\.manifest/
 # Just plain junk
   - !ruby/regexp /\.pdb$/
   - !ruby/regexp /\.vxd$/
@@ -69,6 +70,8 @@ ignorefiles:
   - system volume information
   - start menu
   - temp
+  - Debug
+  - Release
   - cookies
   - x-plane 9 demo
   - ntldr
