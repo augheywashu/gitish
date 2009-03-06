@@ -29,7 +29,7 @@ QString Archive::write_file(const QString &fullpath, const QFileInfo &stat)
   while(! file.atEnd()) {
     QByteArray data = file.read(CHUNKSIZE);
 
-    if(data.size == 0)
+    if(data.size() == 0)
       break;
 
     bytesread += data.size();

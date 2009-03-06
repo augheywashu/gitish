@@ -14,7 +14,7 @@ else
 end
 
 begin
-  store = WriteChain.create(:remote,{ 'storedir' => 'store-remote' })
+  store = WriteChain.create(:remote,{ 'storedir' => ARGV[0] || 'store-remote' })
 
   STDIN.sync = true
   STDOUT.sync = true
