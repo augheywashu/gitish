@@ -37,6 +37,11 @@ ignorepatterns:
   - !ruby/regexp /\.dsf$/
   - !ruby/regexp /\.dds$/
   - !ruby/regexp /\.acf$/
+  - !ruby/regexp /\.env$/
+# Compiled stuff
+  - !ruby/regexp /\.pdb$/
+  - !ruby/regexp /\.idb$/
+  - !ruby/regexp /\.ilk$/
 # Just plain junk
   - !ruby/regexp /\.pdb$/
   - !ruby/regexp /\.vxd$/
@@ -65,6 +70,7 @@ ignorefiles:
   - start menu
   - temp
   - cookies
+  - x-plane 9 demo
   - ntldr
   - msocache
   - program files
