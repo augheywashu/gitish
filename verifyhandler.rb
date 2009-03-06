@@ -48,9 +48,13 @@ class VerifyHandler < Handler
       end
 
       dir = @archive.read_directory(dirsha)
+      raise "Could not read dirsha #{dirsha} for last entry of #{dirname}" if dir.nil?
       @lastdirname = dirname
       @lastdir = dir
     end
+
+    fileentry = dir[:files][filename]
+    raise "Could not find file entry for #{filename} in #{dirname}\n#{dir.inspect}" if fileentry.nil?
 
     @archive.dereferenced_fileshas(dir[:files][filename][:sha]) || raise("Could not find file shas for #{fullpath}")
   end
