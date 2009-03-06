@@ -2,7 +2,7 @@ require 'handler'
 
 class VerifyHandler < Handler
   def initialize(path,archive,rootsha)
-    @path = path
+    @path = File.expand_path(path)
     @archive = archive
     @rootsha = rootsha
   end
@@ -36,14 +36,13 @@ class VerifyHandler < Handler
       dir = @lastdir
     else
       dirs = dirname.split(File::SEPARATOR)
-      dirs.shift
 
       dirsha = @rootsha
       for d in dirs
         dir = @archive.read_directory(dirsha)
         raise "Could not get directory sha for #{dirsha} getting path #{fullpath} on directory #{d}" if dir.nil?
         entry = dir[:dirs][d]
-        raise "Could not get directory entry sha for #{dirsha} getting path #{fullpath} on directory #{d}" if entry.nil?
+        raise "Could not get directory entry sha for #{dirsha} getting path #{fullpath} on directory #{d}\n#{dir.inspect}" if entry.nil?
         dirsha = entry[:sha] || raise("Could not find directory name #{d} under sha #{sha} for directory #{fullpath}")
       end
 
