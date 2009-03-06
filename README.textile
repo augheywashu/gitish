@@ -4,6 +4,24 @@ This is called gitish because it is git'ish.  It uses the concepts of
 git in the way git stores information, but is geared towards a remote
 backup system.
 
+h1. Inspiration
+
+This project is inspired by Apple Time Machine, Git, and the many
+online backup systems such as Mozy, IDrive, DropBox, and even Amazon S3.
+I hesitate to include the Connected DataProtector product in this list
+because it failed to restore my data after a disk loss, but I regress...
+
+This system is designed to solve the following problems.
+
+* Continuous Archive
+** There is no such thing as full backups and incremental backups.  Everything is backed up continuously without any concept of daily, weekly, monthly backups.  Everything backed up is kept forever (unless you want to expire for some reason).
+* Efficient storage
+** All files are compressed and stored together in large chunks on disk.  Duplicate files are only stored once.  Large files that change sparsely store only blocks that change.
+* Secure storage
+** Encryption modules are available in the archive chain to encrypt your data using AES or any other encryption algorithm.  This is particularly important for remote storage.
+* Remote storage
+** Data can be stored on remote machines.  For an organization, an internal central backup server can be used to backup all internal computers.  Remote storage sites such as S3 can be used too.  Additionally, peer systems can be used to create inexpensive ad-hoc remote backup solutions.  I happen to take advantage of cheap storage on DreamHost ISP servers.
+
 h2. Information
 
 More information on the purpose of the files and the concepts will
