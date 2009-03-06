@@ -41,6 +41,7 @@ class VerifyHandler < Handler
       dirsha = @rootsha
       for d in dirs
         dir = @archive.read_directory(dirsha)
+        raise "Could not get directory sha for #{dirsha} getting path #{fullpath} on directory #{d}" if dir.nil?
         dirsha = dir[:dirs][d][:sha] || raise("Could not find directory name #{d} under sha #{sha} for directory #{fullpath}")
       end
 
