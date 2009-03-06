@@ -10,9 +10,11 @@ CommandLine.create(ARGV) do |archive,path,options|
     sha = walker.walk_directory(path,handler)
     archive.sync
     archive.write_commit(sha,path + " - " + Time.now.to_s)
+    archive.sync
     puts sha
   ensure
     STDERR.puts "Done with #{path}"
+    archive.sync
     handler.close
   end
 
