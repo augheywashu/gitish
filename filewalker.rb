@@ -19,6 +19,11 @@ class FileWalker
         /\.wav$/,
         /\.iso$/,
         /\.tmp$/]
+
+    if options['additionalignorepatterns']
+      @ignorepatterns += options['additionalignorepatterns']
+    end
+
     #/\.exe$/,
     #/\.mp3/,
     #/\.wma$/,
