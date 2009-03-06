@@ -40,6 +40,8 @@ ignorepatterns:
   - !ruby/regexp /\.env$/
 # Compiled stuff
   - !ruby/regexp /\.pdb$/
+  - !ruby/regexp /\.ncb$/
+  - !ruby/regexp /\.exp$/
   - !ruby/regexp /\.idb$/
   - !ruby/regexp /\.ilk$/
   - !ruby/regexp /\.manifest/
