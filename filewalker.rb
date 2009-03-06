@@ -44,7 +44,7 @@ class FileWalker
 
   def stats
     ["FileWalker: Processed #{@lookcount.commaize} files.",
-      "FileWalker: Processed at #{@looksize.commaize} bytes.",
+      "FileWalker: Processed #{@looksize.commaize} bytes.",
       "FileWalker: skipped #{@skippeddirs.commaize} directories.",
       "FileWalker: skipped #{@skippedfiles.commaize} files.",
       "FileWalker: skipped #{@skippedsize.commaize} bytes (of skipped files)."]
