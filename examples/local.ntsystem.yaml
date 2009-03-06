@@ -65,6 +65,7 @@ ignorepatterns:
   - !ruby/regexp /^\$/
   - !ruby/regexp /^ntuser.*/
 ignorefiles:
+  - gitish
   - thumbs.db
   - temporary internet files
   - pagefile.sys
