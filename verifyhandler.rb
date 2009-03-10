@@ -40,6 +40,7 @@ class VerifyHandler < Handler
       dirsha = @rootsha
       for d in dirs
         next if d == '.'
+        next if d == ''
         dir = @archive.read_directory(dirsha)
         raise "Could not get directory sha for #{dirsha} getting path #{fullpath} on directory #{d}" if dir.nil?
         entry = dir[:dirs][d]
