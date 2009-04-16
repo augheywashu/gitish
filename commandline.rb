@@ -16,7 +16,11 @@ module CommandLine
       for arg in argv
         yield archive,arg,options
       end
+    rescue Exception => e
+      puts "Caught exception #{e}"
+      raise e
     ensure
+      archive.sync
       archive.close
 
       if printstats

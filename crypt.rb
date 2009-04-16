@@ -12,6 +12,7 @@ class BlobCrypt < WriteChain
 
   def read_sha(sha)
     data = super
+    return data if data.size == 0
     c = OpenSSL::Cipher::Cipher.new("aes-256-cbc")
     c.decrypt
     c.key = @key
@@ -22,6 +23,8 @@ class BlobCrypt < WriteChain
   end
 
   def write(data,sha)
+    return super(data,sha) if data.size == 0
+
     c = OpenSSL::Cipher::Cipher.new("aes-256-cbc")
     c.encrypt
     c.key = @key

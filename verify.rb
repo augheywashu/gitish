@@ -1,13 +1,37 @@
 require 'commandline'
-require 'filewalker'
-require 'verifyhandler'
+require 'backuphandler'
 
-treesha = ARGV[0]
-ARGV.shift
+class BackupHandler
+  attr_reader :archive
+  def initialize(archive)
+    @archive = archive
+  end
 
-CommandLine.create(ARGV) do |archive,path,options|
-  handler = VerifyHandler.new(path,archive,treesha)
-  walker = FileWalker.new(options)
+  def verify_dir(sha,path)
+    STDERR.puts "Verifying directory #{path} #{sha}"
 
-  walker.walk_directory(path,handler)
+    info = archive.read_directory(sha)
+    for dirname,dirinfo in info[:dirs]
+      verify_dir(dirinfo[:sha],File.join(path,dirname))
+    end
+    for filename,info in info[:files]
+      fullpath = File.join(path,filename)
+      STDERR.puts "Verifying file #{fullpath}"
+      filesha = info[:sha]
+      # Now the sha is really a pointer to more shas
+      for sha in archive.dereferenced_fileshas(filesha)
+        data = archive.read_sha(sha)
+      end
+    end
+  end
 end
+
+CommandLine.create(ARGV) do |archive,sha,options|
+  handler = BackupHandler.new(archive)
+
+  handler.verify_dir(sha,"")
+  archive.sync
+  puts "Done with verify"
+end
+
+exit 0
