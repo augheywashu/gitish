@@ -13,6 +13,7 @@ because it failed to restore my data after a disk loss, but I regress...
 
 This system is designed to solve the following problems.
 
+
 * Continuous Archive
 ** There is no such thing as full backups and incremental backups.  Everything is backed up continuously without any concept of daily, weekly, monthly backups.  Everything backed up is kept forever (unless you want to expire for some reason).
 * Efficient storage
